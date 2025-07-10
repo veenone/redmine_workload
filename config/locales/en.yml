@@ -6,6 +6,8 @@ en:
   permission_view_all_workloads: "View all workloads"
   permission_view_own_workloads: "View own workloads"
   permission_view_own_group_workloads: "View own group workloads"
+  permission_view_project_workloads: "View project workloads"
+  project_module_workload: "Workload"
   workload_title: "Workload"
   workload_site_title: "Workload"
   workload_show_label: "Workload"
@@ -105,3 +107,14 @@ en:
   label_include_parent_tasks: Include parent tasks
   info_include_parent_tasks: If parent tasks would not be considered then only estimated times of child issues will be included in the workload calculation!
   warning_include_parent_tasks: If the workload of parent and child issues should be considered independently then you need to adjust the setting in Administration » Settings » Issue tracking » Parent tasks attributes accordingly.
+  label_workload_display_settings: Display Settings
+  label_default_view_all_users: Default to show all users
+  info_default_view_all_users: When enabled, users with permission to view all workloads will see all users by default instead of just their own workload.
+  label_workload_display_options: Display Options
+  label_view_all_users_by_default: View all users by default
+  info_view_all_users_by_default: When checked, you will see all users' workloads by default instead of just your own.
+  label_workload_menu_settings: Menu Settings
+  label_menu_scope: Menu Location
+  label_menu_scope_global: Global Menu (Top Menu)
+  label_menu_scope_project: Project Menu
+  info_menu_scope: Choose where the Workload menu item appears. Global menu shows it in the top navigation bar, while project menu shows it within individual project menus.

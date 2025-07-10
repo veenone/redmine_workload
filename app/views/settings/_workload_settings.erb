@@ -143,3 +143,32 @@
 		<em class='info icon icon-warning'><%= l(:warning_include_parent_tasks) %></em>
 	</p>
 </fieldset>
+
+<fieldset class='box'>
+	<legend><%= l(:label_workload_display_settings) %></legend>
+	<p>
+	  <label><%= l(:label_default_view_all_users) %></label>
+	  <input type="hidden"
+	         name="settings[default_view_all_users]"
+	         value=""
+	  >
+	  <input type="checkbox"
+	         name="settings[default_view_all_users]"
+	         value="checked"
+	         <%= "checked" if settings['default_view_all_users'] != '' %>
+	  >
+		<em class='info'><%= l(:info_default_view_all_users) %></em>
+	</p>
+</fieldset>
+
+<fieldset class='box'>
+	<legend><%= l(:label_workload_menu_settings) %></legend>
+	<p>
+	  <label><%= l(:label_menu_scope) %></label>
+	  <select name="settings[menu_scope]">
+	    <option value="global" <%= "selected" if settings['menu_scope'] == 'global' %>><%= l(:label_menu_scope_global) %></option>
+	    <option value="project" <%= "selected" if settings['menu_scope'] == 'project' %>><%= l(:label_menu_scope_project) %></option>
+	  </select>
+		<em class='info'><%= l(:info_menu_scope) %></em>
+	</p>
+</fieldset>

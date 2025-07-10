@@ -1,10 +1,14 @@
 /*******************************************************************************
- * Color scheme.
+ * Color scheme - Using Redmine theme colors
  ******************************************************************************/
 :root {
-    --lightgray: #eee;
-    --mediumgray: #c0c0c0;
-    --anthracite: #333;
+    --redmine-table-header: #EEEEEE;
+    --redmine-border: #d0d7de;
+    --redmine-odd-row: #fff;
+    --redmine-even-row: #f6f7f8;
+    --redmine-hover: #ffffdd;
+    --redmine-text: #333;
+    --redmine-secondary-text: #555;
 }
 
 /*******************************************************************************
@@ -27,6 +31,43 @@
  * Styles for the filter form.
  ******************************************************************************/
 
+.controller-workloads .content-title {
+    font-size: 16px;
+    font-weight: bold;
+    margin-bottom: 20px;
+    color: var(--redmine-secondary-text);
+}
+
+/* Modern collapsible fieldset icons */
+.controller-workloads fieldset.collapsible legend {
+    cursor: pointer;
+    user-select: none;
+    transition: all 0.2s ease;
+    border-radius: 4px;
+    padding: 8px 12px;
+    margin-bottom: 8px;
+}
+
+.controller-workloads fieldset.collapsible legend:hover {
+    background-color: var(--redmine-even-row);
+}
+
+.controller-workloads fieldset.collapsible legend svg {
+    transition: transform 0.2s ease;
+    margin-right: 8px;
+    vertical-align: middle;
+    width: 16px;
+    height: 16px;
+}
+
+.controller-workloads fieldset.collapsible.collapsed legend svg {
+    transform: rotate(0deg);
+}
+
+.controller-workloads fieldset.collapsible:not(.collapsed) legend svg {
+    transform: rotate(0deg);
+}
+
 .controller-workloads .filters > div,
 .controller-workloads .filters .apply {
     margin-top: 8px;
@@ -36,8 +77,74 @@
     display: inline-block;
 }
 
+.controller-workloads #query_form_with_buttons {
+    background: var(--redmine-even-row);
+    border: 1px solid var(--redmine-border);
+    border-radius: 4px;
+    padding: 10px;
+    margin-bottom: 20px;
+}
+
+.controller-workloads #query_form_content {
+    margin-bottom: 10px;
+}
+
+.controller-workloads .collapsible {
+    margin-bottom: 10px;
+    border: 1px solid var(--redmine-border);
+    border-radius: 4px;
+    background: var(--redmine-odd-row);
+}
+
+.controller-workloads .collapsible legend {
+    background: var(--redmine-table-header);
+    border: 1px solid var(--redmine-border);
+    border-radius: 4px;
+    padding: 5px 10px;
+    margin-bottom: 0;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.controller-workloads .collapsible legend:hover {
+    background: var(--redmine-hover);
+}
+
+.controller-workloads .collapsible > div {
+    padding: 10px;
+}
+
+.controller-workloads .buttons {
+    text-align: center;
+    margin: 10px 0;
+}
+
+.controller-workloads .buttons a {
+    margin: 0 5px;
+    padding: 6px 12px;
+    text-decoration: none;
+    border-radius: 3px;
+    display: inline-block;
+}
+
+.controller-workloads .buttons a.icon-checked {
+    background: #759FCF;
+    color: var(--redmine-odd-row);
+    border: 1px solid #6391c7;
+}
+
+.controller-workloads .buttons a.icon-reload {
+    background: var(--redmine-odd-row);
+    color: var(--redmine-secondary-text);
+    border: 1px solid var(--redmine-border);
+}
+
+.controller-workloads .buttons a:hover {
+    opacity: 0.8;
+}
+
 legend {
-    color: var(--anthracite);
+    color: var(--redmine-text);
 }
 
 .controller-workloads .wrapper {
@@ -54,8 +161,8 @@ legend {
  ******************************************************************************/
 
 .controller-workloads .data .workload_hdr {
-    background-color: var(--lightgray);
-    border: 1px solid var(--mediumgray);
+    background-color: var(--redmine-table-header);
+    border: 1px solid var(--redmine-border);
 }
 
 /* Column width if no data is displayed */
@@ -67,62 +174,183 @@ legend {
 
 /* Month names */
 .controller-workloads .data .month-name {
-    border-left: 1px solid var(--mediumgray);
-    border-top: 1px solid var(--mediumgray);
+    border-left: 1px solid var(--redmine-border);
+    border-top: 1px solid var(--redmine-border);
 }
 
 .controller-workloads .data .month-name:last-child {
-    border-right: 1px solid var(--mediumgray);
+    border-right: 1px solid var(--redmine-border);
 }
 
 /* Num of week */
 .controller-workloads .data .num-of-week.first-day-of-week {
-    border-left: 1px solid var(--mediumgray);
+    border-left: 1px solid var(--redmine-border);
 }
 
 .controller-workloads .data .num-of-week.last-day-of-week {
-    border-right: 1px solid var(--mediumgray);
+    border-right: 1px solid var(--redmine-border);
 }
 
 
 /* Day of month */
 .controller-workloads .data .day-of-month.firstDayOfMonth,
 .controller-workloads .data .day-of-month:first-child {
-    border-left: 1px solid var(--mediumgray);
+    border-left: 1px solid var(--redmine-border);
 }
 
 .controller-workloads .data .day-of-month:last-child {
-    border-right: 1px solid var(--mediumgray);
+    border-right: 1px solid var(--redmine-border);
 }
 
 /* Day of week */
 .controller-workloads .data .day-of-week.firstDayOfWeek,
 .controller-workloads .data .day-of-week:first-child {
-    border-left: 1px solid var(--mediumgray);
+    border-left: 1px solid var(--redmine-border);
 }
 
 .controller-workloads .data .day-of-week:last-child {
-    border-right: 1px solid var(--mediumgray);
+    border-right: 1px solid var(--redmine-border);
 }
 
 
 /*******************************************************************************
- * Styles for the workload table.
+ * Styles for the workload table with horizontal scrolling.
  ******************************************************************************/
 
-.controller-workloads .wrapper {
-    overflow-x: auto;
+.controller-workloads .workload-table-container {
+    background: var(--redmine-odd-row);
+    border: 1px solid var(--redmine-border);
+    border-radius: 4px;
+    margin-top: 20px;
+    position: relative;
+    overflow: hidden;
 }
 
-.controller-workloads .data {
-    table-layout: fixed;
-    border-spacing: 0 3px;
+.controller-workloads .workload-horizontal-scroll {
+    overflow-x: auto;
+    overflow-y: visible;
+    position: relative;
+}
+
+.controller-workloads .workload-table {
+    table-layout: auto;
+    border-spacing: 0;
     border-collapse: collapse;
-    margin-bottom: 10px;
+    margin-bottom: 0;
+    min-width: max-content;
+    width: auto;
+}
+
+.controller-workloads .workload-fixed-column {
+    position: sticky;
+    left: 0;
+    background: var(--redmine-table-header);
+    border-right: 2px solid var(--redmine-border);
+    z-index: 10;
+    min-width: 300px;
+    max-width: 300px;
+    width: 300px;
+}
+
+.controller-workloads .workload-user-header {
+    font-weight: bold;
+    text-align: center;
+    padding: 8px;
 }
 
 .controller-workloads .data th {
     font-weight: initial;
+    background-color: var(--redmine-table-header);
+    border-bottom: 2px solid var(--redmine-border);
+}
+
+.controller-workloads .data thead tr {
+    background-color: var(--redmine-table-header);
+}
+
+.controller-workloads .data thead th,
+.controller-workloads .data thead td {
+    padding: 8px 4px;
+    text-align: center;
+    font-weight: bold;
+    border-right: 1px solid var(--redmine-border);
+    height: 40px;
+}
+
+.controller-workloads .data tbody tr:nth-child(odd) {
+    background-color: var(--redmine-odd-row);
+}
+
+.controller-workloads .data tbody tr:nth-child(even) {
+    background-color: var(--redmine-even-row);
+}
+
+.controller-workloads .data tbody tr:hover {
+    background-color: var(--redmine-hover) !important;
+}
+
+/* User/Group description styling */
+.controller-workloads .user-description,
+.controller-workloads .group-description,
+.controller-workloads .project-description,
+.controller-workloads .issue-description,
+.controller-workloads .invisible-workload-description {
+    position: sticky;
+    left: 0;
+    background: var(--redmine-table-header);
+    border-right: 2px solid var(--redmine-border);
+    z-index: 5;
+    min-width: 300px;
+    max-width: 300px;
+    width: 300px;
+}
+
+/* Day columns styling for horizontal scroll */
+.controller-workloads .workload-table .day-of-month,
+.controller-workloads .workload-table .day-of-week,
+.controller-workloads .workload-table .hours {
+    min-width: 35px;
+    width: 35px;
+    white-space: nowrap;
+}
+
+.controller-workloads .workload-table .month-name {
+    min-width: 80px;
+    white-space: nowrap;
+}
+
+.controller-workloads .workload-table .num-of-week {
+    min-width: 35px;
+    white-space: nowrap;
+}
+
+/* Ensure scrollbar is always visible */
+.controller-workloads .workload-horizontal-scroll::-webkit-scrollbar {
+    height: 12px;
+}
+
+.controller-workloads .workload-horizontal-scroll::-webkit-scrollbar-track {
+    background: var(--redmine-even-row);
+    border-radius: 6px;
+}
+
+.controller-workloads .workload-horizontal-scroll::-webkit-scrollbar-thumb {
+    background: var(--redmine-border);
+    border-radius: 6px;
+}
+
+.controller-workloads .workload-horizontal-scroll::-webkit-scrollbar-thumb:hover {
+    background: var(--redmine-secondary-text);
+}
+
+/* Visual enhancement when scrolled */
+.controller-workloads .workload-horizontal-scroll.is-scrolled .workload-fixed-column,
+.controller-workloads .workload-horizontal-scroll.is-scrolled .user-description,
+.controller-workloads .workload-horizontal-scroll.is-scrolled .group-description,
+.controller-workloads .workload-horizontal-scroll.is-scrolled .project-description,
+.controller-workloads .workload-horizontal-scroll.is-scrolled .issue-description,
+.controller-workloads .workload-horizontal-scroll.is-scrolled .invisible-workload-description {
+    box-shadow: 2px 0 4px rgba(0,0,0,0.1);
 }
 
 /*------------------------------------------------------------------------------
@@ -222,39 +450,39 @@ legend {
 }
 
 .controller-workloads .data tr td:last-child {
-    border-right: 1px solid var(--mediumgray);
+    border-right: 1px solid var(--redmine-border);
 }
 
 .controller-workloads .data tr:last-child td,
 .controller-workloads .data tr:last-child th {
-    border-bottom: 1px solid var(--mediumgray);
+    border-bottom: 1px solid var(--redmine-border);
 }
 
 .controller-workloads .data .user-total-workload {
-    background-color: #F6F7F8;
+    background-color: var(--redmine-even-row);
 }
 
 .controller-workloads .data .issue-workloads.odd {
-    background-color: #F6F7F8;
+    background-color: var(--redmine-odd-row);
 }
 
 .controller-workloads .data .issue-workloads.odd.overdue {
-    background-color: #ecb4b4;
+    background-color: #ffebee;
 }
 
 .controller-workloads .data .issue-workloads.even {
-    background-color: white;
+    background-color: var(--redmine-even-row);
 }
 
 .controller-workloads .data .issue-workloads.even.overdue {
-    background-color: #f8d0d0;
+    background-color: #ffcdd2;
 }
 
 .controller-workloads .data .issue-workloads:hover,
 .controller-workloads .data .group-total-workload:hover,
 .controller-workloads .data .user-total-workload:hover,
 .controller-workloads .data .project-total-workload:hover{
-    background-color: #D7D7D7!important;
+    background-color: var(--redmine-hover)!important;
 }
 
 .controller-workloads .data td {
@@ -277,12 +505,12 @@ legend {
     display: block;
     padding-top: .6em;
     padding-bottom: .3em;
-    height: 1em;
+    height: 100%;
     color: white;
 }
 
 .controller-workloads .data .hours.none span {
-    color: var(--anthracite);
+    color: var(--redmine-text);
 }
 
 .controller-workloads .data .none span {
@@ -307,13 +535,13 @@ legend {
 }
 
 .controller-workloads .data .holiday {
-   background-color: var(--lightgray);
-   border-left: 1px solid var(--mediumgray);
-   border-right: 1px solid var(--mediumgray);
+   background-color: var(--redmine-table-header);
+   border-left: 1px solid var(--redmine-border);
+   border-right: 1px solid var(--redmine-border);
 }
 
 .controller-workloads .data .holiday.today {
-    background-color: var(--lightgray);
+    background-color: var(--redmine-table-header);
     border-right: 2px dashed red;
 }
 
@@ -332,4 +560,52 @@ legend {
  #year-nav {
     padding-top: 2rem;
  }
+
+/*******************************************************************************
+ * Additional styling for easy_gantt compatibility.
+ ******************************************************************************/
+
+.controller-workloads #workload_view {
+    background: var(--redmine-odd-row);
+    padding: 20px;
+    border-radius: 4px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.controller-workloads .contextual {
+    float: right;
+    margin-bottom: 10px;
+}
+
+.controller-workloads .hide-when-print {
+    /* Will be hidden when printing */
+}
+
+.controller-workloads .workload-menu-button {
+    display: inline-block;
+    padding: 6px 12px;
+    margin: 0 3px;
+    text-decoration: none;
+    border-radius: 3px;
+    border: 1px solid var(--redmine-border);
+    background: var(--redmine-odd-row);
+    color: var(--redmine-text);
+}
+
+.controller-workloads .workload-menu-button:hover {
+    background: var(--redmine-hover);
+    text-decoration: none;
+}
+
+.controller-workloads .workload-menu-button.button-positive {
+    background: #759FCF;
+    color: var(--redmine-odd-row);
+    border-color: #6391c7;
+}
+
+.controller-workloads .clear:after {
+    content: "";
+    display: table;
+    clear: both;
+}
  

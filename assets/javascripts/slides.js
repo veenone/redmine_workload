@@ -5,9 +5,55 @@
  */
 
 $(document).ready(function() {
+	// Collapsible fieldsets functionality
+	window.toggleFieldset = function(legend) {
+		var fieldset = $(legend).closest('fieldset');
+		var contentDiv = fieldset.find('> div').first();
+		var icon = $(legend).find('.icon');
+		
+		if (contentDiv.is(':visible')) {
+			contentDiv.hide();
+			fieldset.addClass('collapsed');
+			$(legend).removeClass('icon-expanded').addClass('icon-collapsed');
+			icon.removeClass('icon-angle-down').addClass('icon-angle-right');
+		} else {
+			contentDiv.show();
+			fieldset.removeClass('collapsed');
+			$(legend).removeClass('icon-collapsed').addClass('icon-expanded');
+			icon.removeClass('icon-angle-right').addClass('icon-angle-down');
+		}
+	};
+
+	// Initialize workload table horizontal scrolling
+	function initWorkloadScrolling() {
+		var scrollContainer = $('.workload-horizontal-scroll');
+		if (scrollContainer.length === 0) return;
+
+		// Ensure sticky positioning works correctly
+		var stickyElements = $('.workload-fixed-column, .user-description, .group-description, .project-description, .issue-description, .invisible-workload-description');
+		
+		// Add a class to indicate scrolling state for better visual feedback
+		scrollContainer.on('scroll', function() {
+			var scrollLeft = $(this).scrollLeft();
+			if (scrollLeft > 0) {
+				$(this).addClass('is-scrolled');
+			} else {
+				$(this).removeClass('is-scrolled');
+			}
+		});
+
+		// Ensure table renders correctly
+		setTimeout(function() {
+			scrollContainer.trigger('scroll');
+		}, 100);
+	}
+
+	// Initialize on page load
+	initWorkloadScrolling();
+
 	$('.trigger').click(function() {
-		var OPENED = '&#x25bc;'
-		var CLOSED = '&#x25b6;'
+		var OPENED = '&#x1F4C2;'
+		var CLOSED = '&#x1F4C1;'
 		$(this).toggleClass('closed opened');
 
 		identifier = $(this).attr('data-for');

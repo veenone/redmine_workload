@@ -10,6 +10,7 @@ class WlUserSelection
   # @param users [Array(User)] Selected user objects.
   # @param group_selection [WlGroupSelection] WlGroupSelection object.
   # @param user [User] A user object.
+  # @param project [Project] A project object for project-scoped workloads.
   #
   # @note params[:user] is currently used for tests only!
   #
@@ -18,6 +19,7 @@ class WlUserSelection
     self.groups = params[:group_selection]
     self.selected_groups = groups&.selected
     self.user = define_user(params[:user])
+    self.project = params[:project]
   end
 
   def all_selected
@@ -29,7 +31,11 @@ class WlUserSelection
   #
   # @return [Array(User)] An array of user objects.
   def selected
-    (users_from_context & allowed_to_display) | include_current_user
+    result = users_from_context & allowed_to_display
+    return result unless result.empty?
+    
+    # If no specific users are selected, return default selection
+    default_user_selection
   end
 
   ##
@@ -45,7 +51,7 @@ class WlUserSelection
 
   private
 
-  attr_accessor :user, :users, :selected_groups
+  attr_accessor :user, :users, :selected_groups, :project
   attr_writer :groups
 
   ##
@@ -56,14 +62,25 @@ class WlUserSelection
   end
 
   ##
-  # It is expected to return the current user only if the user visits the
-  # workload index page but not if she hasn't selected herself in the filter
-  # fields afterwards.
+  # Returns the default user selection when no specific users are chosen.
+  # This respects the "default_view_all_users" setting and user preferences.
   #
-  def include_current_user
-    return [user] if users_from_context.blank?
-
-    []
+  def default_user_selection
+    if project
+      # Project context - check project permissions
+      if (user.admin? || allowed_to?(:view_project_workloads)) && should_view_all_users?
+        allowed_to_display
+      else
+        [user]
+      end
+    else
+      # Global context - use existing logic
+      if (user.admin? || allowed_to?(:view_all_workloads)) && should_view_all_users?
+        allowed_to_display
+      else
+        [user]
+      end
+    end
   end
 
   ##
@@ -90,15 +107,23 @@ class WlUserSelection
   # @return [Array(User)] Array of all users objects the current user may display.
   #
   def users_allowed_to_display
-    return all_users if user.admin? || allowed_to?(:view_all_workloads)
+    if project
+      # Project context - check project permissions
+      return all_users if user.admin? || allowed_to?(:view_project_workloads)
+      # For project context, fall back to current user only
+      [user]
+    else
+      # Global context - use existing logic
+      return all_users if user.admin? || allowed_to?(:view_all_workloads)
 
-    result = group_members_allowed_to(:view_own_group_workloads)
+      result = group_members_allowed_to(:view_own_group_workloads)
 
-    if result.blank?
-      result = allowed_to?(:view_own_workloads) ? [user] : []
+      if result.blank?
+        result = allowed_to?(:view_own_workloads) ? [user] : []
+      end
+
+      result.flatten.uniq
     end
-
-    result.flatten.uniq
   end
 
   def all_users
@@ -148,6 +173,24 @@ class WlUserSelection
   end
 
   def allowed_to?(permission)
-    user.allowed_to?(permission.to_sym, nil, global: true)
+    if project
+      user.allowed_to?(permission.to_sym, project)
+    else
+      user.allowed_to?(permission.to_sym, nil, global: true)
+    end
+  end
+
+  def default_view_all_users?
+    Setting.plugin_redmine_workload['default_view_all_users'] == 'checked'
+  end
+
+  def should_view_all_users?
+    # Check user preference first, then fall back to global setting
+    user_preference = user.pref[:workload_view_all_users]
+    if user_preference.present?
+      user_preference == 'true'
+    else
+      default_view_all_users?
+    end
   end
 end

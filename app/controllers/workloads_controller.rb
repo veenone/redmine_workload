@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 class WorkloadsController < ApplicationController
-  unloadable
 
   helper :gantt
   helper :issues
@@ -14,7 +13,8 @@ class WorkloadsController < ApplicationController
   include RedmineWorkload::WlUserDataFinder
   include WorkloadsHelper
 
-  before_action :authorize_global, only: %i[index]
+  before_action :find_project_if_needed
+  before_action :authorize_workload_access, only: %i[index]
   before_action :find_user_workload_data
   before_action :valid_encoding?, only: %i[index]
 
@@ -36,7 +36,7 @@ class WorkloadsController < ApplicationController
 
     if @date_check
       @groups = WlGroupSelection.new(groups: workload_params[:groups])
-      @users = WlUserSelection.new(users: workload_params[:users], group_selection: @groups)
+      @users = WlUserSelection.new(users: workload_params[:users], group_selection: @groups, project: @project)
 
       assignees = @users.all_selected
       user_workload = UserWorkload.new(assignees: assignees,
@@ -68,6 +68,30 @@ class WorkloadsController < ApplicationController
   end
 
   private
+
+  def find_project_if_needed
+    if params[:project_id].present?
+      @project = Project.find(params[:project_id])
+    end
+  rescue ActiveRecord::RecordNotFound
+    render_404
+  end
+
+  def authorize_workload_access
+    if params[:project_id].present?
+      # Project scope - authorize against the project
+      if @project
+        unless User.current.allowed_to?(:view_project_workloads, @project)
+          deny_access
+        end
+      else
+        render_404
+      end
+    else
+      # Global scope - authorize globally
+      authorize_global
+    end
+  end
 
   def valid_encoding?
     return index unless params[:encoding]
@@ -106,7 +130,7 @@ class WorkloadsController < ApplicationController
     return if filter.blank?
 
     groups = filter.include? 'groups'
-    groups ? { groups: WlGroupSelection.new.all_group_ids } : { users: WlUserSelection.new.all_user_ids }
+    groups ? { groups: WlGroupSelection.new.all_group_ids } : { users: WlUserSelection.new(project: @project).all_user_ids }
   end
 
   def sanitizeDateParameter(parameter, default)

@@ -121,4 +121,43 @@ module WorkloadsHelper
     end
     tags
   end
+
+  def workload_js_button(text, options={})
+    if text.is_a?(Symbol)
+      lang_key = text
+      text = l(lang_key)
+      options[:title] ||= text
+    end
+    options[:class] = "workload-menu-button #{options[:class]}"
+    options[:class] << ' button' unless options.delete(:no_button)
+    if (icon = options.delete(:icon))
+      options[:class] << " icon #{icon}"
+      text = sprite_icon(icon.sub("icon-", ""), text)
+    end
+    link_to(text, options[:url] || 'javascript:void(0)', options)
+  end
+
+  def workload_include_js(*javascripts, from_plugin: 'redmine_workload')
+    plugin = from_plugin
+
+    result = ''
+    javascripts.flatten!
+    javascripts.compact!
+    javascripts.each do |javascript|
+      result << javascript_include_tag("#{from_plugin}/#{javascript}", plugin: plugin)
+    end
+    result.html_safe
+  end
+
+  def workload_include_css(*stylesheets, media: 'screen', from_plugin: 'redmine_workload')
+    plugin = from_plugin
+
+    result = ''
+    stylesheets.flatten!
+    stylesheets.compact!
+    stylesheets.each do |stylesheet|
+      result << stylesheet_link_tag("#{from_plugin}/#{stylesheet}", plugin: plugin, media: media)
+    end
+    result.html_safe
+  end
 end

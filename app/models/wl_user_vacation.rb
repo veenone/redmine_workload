@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 class WlUserVacation < ActiveRecord::Base
-  unloadable
 
   belongs_to :user, inverse_of: :wl_user_vacations, optional: true
 

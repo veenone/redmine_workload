@@ -9,8 +9,8 @@ Redmine::Plugin.register :redmine_workload do
   description 'This is a plugin for Redmine, originally developed by Rafael Calleja. It ' \
               'displays the estimated number of hours users and groups have to work to finish ' \
               'all their assigned issus on time.'
-  version '3.0.2'
-  url 'https://github.com/xmera-circle/redmine_workload'
+  version '3.1.0'
+  url 'https://github.com/veenone/redmine_workload'
 
   if RedmineWorkload.postgresql? && RUBY_VERSION <= '3.1'
     msg = "#{name} requires at least Ruby 3.1.z when using postgresql database."
@@ -22,8 +22,20 @@ Redmine::Plugin.register :redmine_workload do
        { controller: 'workloads', action: 'index' },
        caption: :workload_title,
        if: proc {
-             User.current.logged? && User.current.allowed_to?({ controller: :workloads, action: :index },
-                                                              nil, global: true)
+             User.current.logged? && 
+             Setting.plugin_redmine_workload['menu_scope'] == 'global' &&
+             User.current.allowed_to?({ controller: :workloads, action: :index },
+                                      nil, global: true)
+           }
+
+  menu :project_menu,
+       :WorkLoad,
+       { controller: 'workloads', action: 'index' },
+       caption: :workload_title,
+       if: proc { |project|
+             User.current.logged? && 
+             Setting.plugin_redmine_workload['menu_scope'] == 'project' &&
+             User.current.allowed_to?(:view_project_workloads, project)
            }
 
   settings partial: 'settings/workload_settings',
@@ -38,7 +50,9 @@ Redmine::Plugin.register :redmine_workload do
              'threshold_lowload_min' => 0.1,
              'threshold_normalload_min' => 7,
              'threshold_highload_min' => 8.5,
-             'workload_of_parent_issues' => ''
+             'workload_of_parent_issues' => '',
+             'default_view_all_users' => '',
+             'menu_scope' => 'global'
            }
 
   permission :view_all_workloads, workloads: :index
@@ -47,6 +61,11 @@ Redmine::Plugin.register :redmine_workload do
   permission :edit_national_holiday, wl_national_holiday: %i[create update destroy]
   permission :edit_user_vacations,   wl_user_vacations: %i[create update destroy]
   permission :edit_user_data,        wl_user_datas: :update
+  
+  # Project-specific permissions
+  project_module :workload do
+    permission :view_project_workloads, workloads: :index
+  end
 end
 
 if Rails.version < '6'

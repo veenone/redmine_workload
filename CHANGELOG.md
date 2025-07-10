@@ -5,6 +5,44 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 3.1.0 - 2025-07-10
+
+### Added
+
+* **UI Modernization**: Applied easy_gantt design patterns to workload tables for consistent UI experience
+* **Horizontal Scrolling**: Added horizontal scroll functionality with sticky first column for better navigation of wide workload tables
+* **Theme Color Integration**: Workload tables now inherit Redmine theme colors for consistent appearance across different themes
+* **User Preference System**: Added configuration to display all users by default instead of only own workload
+  - Global admin setting for default behavior
+  - Individual user preference override via Display Options in filters
+  - Permission-based access control
+* **Menu Scope Configuration**: Added option to display workload menu in either global (top menu) or project scope
+  - Configurable via Administration → Plugins → Redmine Workload Plugin
+  - Project-scoped access with proper permission handling
+* **Modern Collapsible Icons**: Updated fieldset toggle icons to modern chevron-style icons with smooth transitions
+
+### Enhanced
+
+* **Controller Authorization**: Improved authorization logic to handle both global and project contexts
+* **Project Context Support**: Added full project-scoped workload functionality with proper routing and permissions
+* **User Selection Logic**: Enhanced WlUserSelection model to support project context and user preferences
+* **CSS Styling**: Added modern hover effects and transitions for better user experience
+
+### Fixed
+
+* **Database Configuration**: Fixed compatibility issues with different Rails versions for database configuration access
+* **Missing Constants**: Resolved Zeitwerk naming errors for proper class loading
+* **Syntax Errors**: Fixed controller syntax issues for proper error handling
+* **Permission Handling**: Improved permission checking for both global and project-scoped access
+
+### Technical Improvements
+
+* Added database migrations for new settings and preferences
+* Enhanced JavaScript functionality for collapsible fieldsets
+* Improved error handling and validation
+* Added comprehensive localization support for new features
+* Updated routing to support both global and project-scoped access
+
 ## 3.0.2 - 2023-07-24
 
 ### Deletes
