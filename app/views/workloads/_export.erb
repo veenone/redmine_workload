@@ -1,15 +1,16 @@
   <div class="workload-export-section">
-    <% other_formats_links do |f| %>
-      <%= f.link_to_with_query_parameters workload_js_button('CSV', icon: 'icon-download'), {}, :onclick => "showModal('csv-export-options', '330px'); return false;" %>
-    <% end %>
+    <%= link_to sprite_icon('download', 'CSV'), 'javascript:void(0)', 
+        :onclick => "showModal('csv-export-options', '330px'); return false;", 
+        :class => 'button icon icon-download workload-menu-button',
+        :title => 'Export CSV' %>
   </div>
 
   <div id="csv-export-options" style="display: none;">
     <h3 class="title"><%= l(:label_export_options, :export_format => 'CSV') %></h3>
-    <%= form_tag(workloads_path(:format => 'csv'), :method => :get, :id => 'csv-export-form') do %>
+    <%= form_tag(workloads_path(:format => 'csv', :project_id => params[:project_id]), :method => :get, :id => 'csv-export-form') do %>
       <%= workload_params_as_hidden_field_tags(params) %>
       <p>
-      <% if User.current.allowed_to_globally? :view_all_workloads %>
+      <% if User.current.admin? || User.current.allowed_to?(:view_all_workloads, nil, global: true) %>
         <label><%= radio_button_tag 'filter_type[]', '', true %> <%= l("description_selected_#{filter_type(groups)}") %></label><br />
         <label><%= radio_button_tag 'filter_type[]', "all_#{filter_type(groups)}" %> <%= l("description_all_#{filter_type(groups)}") %></label>
       <% else %>
@@ -19,7 +20,7 @@
       <%= export_csv_encoding_select_tag %>
       <p class="buttons">
       <%= submit_tag l(:button_export), :name => nil, :onclick => "hideModal(this);", :data => { :disable_with => false }, id: 'csv-export-button', class: 'button button-positive' %>
-      <%= link_to_function l(:button_cancel), "hideModal(this);", class: 'button' %>
+      <%= link_to l(:button_cancel), 'javascript:void(0)', :onclick => "hideModal(this); return false;", class: 'button' %>
       </p>
     <% end %>
   </div>

@@ -14,7 +14,8 @@
 
 <tr class="issue-workloads <%= css_group_user_project_class(group&.id, user&.id, issue.project&.id) %> <%= klass %>">
   <th class="issue-description" scope="row">
-    <div class="tooltip"><%= link_to_issue(issue) %>
+    <%= link_to_issue(issue) %>
+    <div class="tooltip" style="display: none;">
       <span class="tip"><%= render_issue_tooltip(issue) %></span>
     </div>
   </th>

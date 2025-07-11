@@ -441,8 +441,67 @@ legend {
 /*------------------------------------------------------------------------------
  * Real table data
  -----------------------------------------------------------------------------*/
+
+/* Tooltip functionality */
+.controller-workloads .tooltip {
+    position: relative;
+    display: inline-block;
+}
+
 .controller-workloads .tooltip span.tip {
+    visibility: hidden;
+    width: 300px;
+    background-color: #555;
+    color: #fff;
+    text-align: left;
+    border-radius: 6px;
+    padding: 8px;
+    position: absolute;
+    z-index: 1000;
     top: 20px;
+    left: 50%;
+    margin-left: -150px;
+    opacity: 0;
+    transition: opacity 0.3s;
+    font-size: 12px;
+    box-shadow: 0px 2px 8px rgba(0,0,0,0.2);
+}
+
+.controller-workloads .tooltip:hover span.tip {
+    visibility: visible;
+    opacity: 1;
+}
+
+/* Ensure the main issue link is always visible */
+.controller-workloads .tooltip > a {
+    color: var(--redmine-text) !important;
+    text-decoration: none;
+    display: inline-block;
+}
+
+.controller-workloads .tooltip > a:hover {
+    text-decoration: underline;
+}
+
+/* Fix issue description visibility */
+.controller-workloads .issue-description {
+    color: var(--redmine-text) !important;
+    text-align: left;
+    padding: 4px 8px;
+}
+
+.controller-workloads .issue-description .tooltip {
+    color: var(--redmine-text) !important;
+}
+
+.controller-workloads .issue-description a {
+    color: #169 !important;
+    font-weight: normal;
+}
+
+.controller-workloads .issue-description a:hover {
+    color: #b2290f !important;
+    text-decoration: underline;
 }
 
 .controller-workloads td.hours {
@@ -607,5 +666,74 @@ legend {
     content: "";
     display: table;
     clear: both;
+}
+
+
+/*******************************************************************************
+ * Modal styles for CSV export
+ ******************************************************************************/
+
+#modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+    display: none;
+}
+
+#csv-export-options {
+    position: fixed;
+    background: #fff;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    padding: 20px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    z-index: 1001;
+    max-width: 90%;
+    max-height: 90%;
+    overflow-y: auto;
+}
+
+#csv-export-options h3.title {
+    margin-top: 0;
+    margin-bottom: 15px;
+    color: var(--redmine-text);
+    border-bottom: 1px solid var(--redmine-border);
+    padding-bottom: 10px;
+}
+
+#csv-export-options p {
+    margin: 10px 0;
+}
+
+#csv-export-options label {
+    margin-right: 10px;
+    cursor: pointer;
+}
+
+#csv-export-options .buttons {
+    margin-top: 20px;
+    text-align: right;
+}
+
+#csv-export-options .button {
+    margin-left: 5px;
+}
+
+.workload-export-section {
+    margin-top: 20px;
+    text-align: right;
+}
+
+.workload-menu-button {
+    display: inline-block;
+    text-decoration: none;
+}
+
+.workload-menu-button:hover {
+    text-decoration: none;
 }
  
