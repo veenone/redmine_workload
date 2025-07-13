@@ -35,7 +35,7 @@ class WorkloadsController < ApplicationController
     @time_span_to_display = @first_day..@last_day
 
     if @date_check
-      @groups = WlGroupSelection.new(groups: workload_params[:groups])
+      @groups = WlGroupSelection.new(groups: workload_params[:groups], project: @project)
       @users = WlUserSelection.new(users: workload_params[:users], group_selection: @groups, project: @project)
 
       assignees = @users.all_selected
@@ -130,7 +130,7 @@ class WorkloadsController < ApplicationController
     return if filter.blank?
 
     groups = filter.include? 'groups'
-    groups ? { groups: WlGroupSelection.new.all_group_ids } : { users: WlUserSelection.new(project: @project).all_user_ids }
+    groups ? { groups: WlGroupSelection.new(project: @project).all_group_ids } : { users: WlUserSelection.new(project: @project).all_user_ids }
   end
 
   def sanitizeDateParameter(parameter, default)

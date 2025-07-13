@@ -1,0 +1,52 @@
+<h2><%= l(:label_workload_notification) %></h2>
+
+<p><strong><%= l(:field_project) %>:</strong> <%= link_to @project.name, project_url(@project) %></p>
+
+<p><strong><%= l(:field_issue) %>:</strong> 
+  <%= link_to "#{@issue.tracker.name} ##{@issue.id}: #{@issue.subject}", issue_url(@issue) %>
+</p>
+
+<% if @issue.assigned_to %>
+<p><strong><%= l(:field_assigned_to) %>:</strong> <%= @issue.assigned_to.name %></p>
+<% end %>
+
+<% if @issue.estimated_hours %>
+<p><strong><%= l(:field_estimated_hours) %>:</strong> <%= @issue.estimated_hours %> <%= l(:label_hour_plural) %></p>
+<% end %>
+
+<% if @issue.due_date %>
+<p><strong><%= l(:field_due_date) %>:</strong> <%= format_date(@issue.due_date) %></p>
+<% end %>
+
+<p><strong><%= l(:field_status) %>:</strong> <%= @issue.status.name %></p>
+
+<% if @issue.priority %>
+<p><strong><%= l(:field_priority) %>:</strong> <%= @issue.priority.name %></p>
+<% end %>
+
+<% case @action %>
+<% when :created %>
+  <p><%= l(:text_workload_issue_created_explanation) %></p>
+<% when :updated %>
+  <p><%= l(:text_workload_issue_updated_explanation) %></p>
+<% else %>
+  <p><%= l(:text_workload_issue_changed_explanation) %></p>
+<% end %>
+
+<% if @issue.description.present? %>
+<h3><%= l(:field_description) %></h3>
+<div class="wiki">
+  <%= textilizable(@issue, :description) %>
+</div>
+<% end %>
+
+<hr>
+
+<p>
+  <%= link_to l(:label_view_workload), @workload_url, class: 'button' %>
+  <%= link_to l(:label_issue_view), issue_url(@issue), class: 'button' %>
+</p>
+
+<p class="footer">
+  <%= l(:text_workload_notification_footer) %>
+</p>

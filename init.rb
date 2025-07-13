@@ -2,6 +2,7 @@
 
 require 'redmine'
 require File.expand_path('lib/redmine_workload', __dir__)
+require File.expand_path('lib/redmine_workload/patches/projects_helper_patch', __dir__)
 
 Redmine::Plugin.register :redmine_workload do
   name 'Redmine workload plugin'
@@ -9,7 +10,7 @@ Redmine::Plugin.register :redmine_workload do
   description 'This is a plugin for Redmine, originally developed by Rafael Calleja. It ' \
               'displays the estimated number of hours users and groups have to work to finish ' \
               'all their assigned issus on time.'
-  version '3.1.0'
+  version '3.2.0'
   url 'https://github.com/veenone/redmine_workload'
 
   if RedmineWorkload.postgresql? && RUBY_VERSION <= '3.1'
@@ -52,7 +53,8 @@ Redmine::Plugin.register :redmine_workload do
              'threshold_highload_min' => 8.5,
              'workload_of_parent_issues' => '',
              'default_view_all_users' => '',
-             'menu_scope' => 'global'
+             'menu_scope' => 'global',
+             'enable_workload_notifications' => ''
            }
 
   permission :view_all_workloads, workloads: :index
@@ -65,6 +67,7 @@ Redmine::Plugin.register :redmine_workload do
   # Project-specific permissions
   project_module :workload do
     permission :view_project_workloads, workloads: :index
+    permission :manage_project_workload_settings, wl_project_settings: [:show, :update]
   end
 end
 

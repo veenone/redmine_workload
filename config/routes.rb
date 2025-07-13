@@ -9,4 +9,5 @@ resources :wl_user_vacations
 # Project-scoped routes
 resources :projects do
   resources :workloads, only: %w[index]
+  resource :wl_project_setting, only: %w[show update], path: 'workload_settings'
 end

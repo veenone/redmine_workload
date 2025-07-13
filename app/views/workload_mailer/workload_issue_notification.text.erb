@@ -1,0 +1,49 @@
+<%= l(:label_workload_notification) %>
+================================================================================
+
+<%= l(:field_project) %>: <%= @project.name %>
+<%= project_url(@project) %>
+
+<%= l(:field_issue) %>: <%= @issue.tracker.name %> #<%= @issue.id %>: <%= @issue.subject %>
+<%= issue_url(@issue) %>
+
+<% if @issue.assigned_to -%>
+<%= l(:field_assigned_to) %>: <%= @issue.assigned_to.name %>
+<% end -%>
+
+<% if @issue.estimated_hours -%>
+<%= l(:field_estimated_hours) %>: <%= @issue.estimated_hours %> <%= l(:label_hour_plural) %>
+<% end -%>
+
+<% if @issue.due_date -%>
+<%= l(:field_due_date) %>: <%= format_date(@issue.due_date) %>
+<% end -%>
+
+<%= l(:field_status) %>: <%= @issue.status.name %>
+
+<% if @issue.priority -%>
+<%= l(:field_priority) %>: <%= @issue.priority.name %>
+<% end -%>
+
+<% case @action -%>
+<% when :created -%>
+<%= l(:text_workload_issue_created_explanation) %>
+<% when :updated -%>
+<%= l(:text_workload_issue_updated_explanation) %>
+<% else -%>
+<%= l(:text_workload_issue_changed_explanation) %>
+<% end -%>
+
+<% if @issue.description.present? -%>
+
+<%= l(:field_description) %>:
+--------------------------------------------------------------------------------
+<%= @issue.description %>
+<% end -%>
+
+================================================================================
+
+<%= l(:label_view_workload) %>: <%= @workload_url %>
+<%= l(:label_issue_view) %>: <%= issue_url(@issue) %>
+
+<%= l(:text_workload_notification_footer) %>

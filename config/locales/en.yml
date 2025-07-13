@@ -7,6 +7,7 @@ en:
   permission_view_own_workloads: "View own workloads"
   permission_view_own_group_workloads: "View own group workloads"
   permission_view_project_workloads: "View project workloads"
+  permission_manage_project_workload_settings: "Manage project workload settings"
   project_module_workload: "Workload"
   workload_title: "Workload"
   workload_site_title: "Workload"
@@ -118,3 +119,34 @@ en:
   label_menu_scope_global: Global Menu (Top Menu)
   label_menu_scope_project: Project Menu
   info_menu_scope: Choose where the Workload menu item appears. Global menu shows it in the top navigation bar, while project menu shows it within individual project menus.
+  label_workload_notification: Workload Notification
+  mail_subject_workload_issue_created: "[%{project}] Workload Issue Created: #%{id} %{subject}"
+  mail_subject_workload_issue_updated: "[%{project}] Workload Issue Updated: #%{id} %{subject}" 
+  mail_subject_workload_issue_changed: "[%{project}] Workload Issue Changed: #%{id} %{subject}"
+  text_workload_issue_created: "A new issue has been created that affects workload calculations:"
+  text_workload_issue_updated: "An issue affecting workload calculations has been updated:"
+  text_workload_issue_changed: "An issue affecting workload calculations has been changed:"
+  text_workload_notification_footer: "You received this notification because you have workload viewing permissions and this issue affects resource planning calculations."
+  label_view_workload: "View Workload"
+  label_workload_notifications: "Workload Notifications"
+  label_enable_workload_notifications: "Enable workload notifications"
+  info_enable_workload_notifications: "When enabled, users will receive email notifications when issues affecting workload calculations are created or updated."
+  label_all_groups: "Show all groups"
+  label_include_only: "Include only selected groups"
+  label_exclude_only: "Exclude selected groups"
+  label_selected_groups: "Select groups"
+  label_group_filtering_active: "Group Filtering Active"
+  text_including_groups: 
+    one: "Including group: %{groups}"
+    other: "Including groups: %{groups}"
+  text_excluding_groups:
+    one: "Excluding group: %{groups}"
+    other: "Excluding groups: %{groups}"
+  label_workload_settings: "Workload"
+  label_workload_project_settings: "Workload Settings"
+  label_project_group_filtering: "Group Filtering"
+  label_project_group_filter_mode: "Group filtering mode"
+  info_selected_groups_project: "Choose which groups to include or exclude based on the filter mode selected above. This setting affects only this project's workload view."
+  info_project_group_filter_mode_project: "Control which groups are available in this project's workload view. This setting only affects workload calculations when viewing this specific project."
+  notice_settings_updated: "Settings successfully updated"
+  error_settings_update_failed: "Failed to update settings"

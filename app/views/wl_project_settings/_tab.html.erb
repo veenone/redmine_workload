@@ -1,0 +1,52 @@
+<% @wl_project_setting ||= WlProjectSetting.for_project(@project) %>
+<% @groups ||= Group.givable.order(:lastname) %>
+
+<%= form_with model: [@project, @wl_project_setting], url: project_wl_project_setting_path(@project), local: true, method: :patch do |f| %>
+  <div class="box tabular">
+    <p>
+      <%= f.label :group_filter_mode, l(:label_project_group_filter_mode) %>
+      <%= f.select :group_filter_mode, 
+          options_for_select([
+            [l(:label_all_groups), 'all'],
+            [l(:label_include_only), 'include'],
+            [l(:label_exclude_only), 'exclude']
+          ], @wl_project_setting.group_filter_mode),
+          {}, 
+          { id: 'group_filter_mode', onchange: 'toggleGroupSelection()' } %>
+    </p>
+    
+    <div id="group-selection-container" style="<%= 'display: none;' if @wl_project_setting.group_filter_mode == 'all' %>">
+      <p>
+        <%= f.label :filtered_group_ids, l(:label_selected_groups) %>
+        <%= f.select :filtered_group_ids, 
+            options_from_collection_for_select(@groups, :id, :lastname, @wl_project_setting.filtered_group_ids),
+            {},
+            { multiple: true, size: 8, style: 'width: 100%;' } %>
+      </p>
+      <em class="info"><%= l(:info_selected_groups_project) %></em>
+    </div>
+    
+    <em class="info"><%= l(:info_project_group_filter_mode_project) %></em>
+  </div>
+
+  <p>
+    <%= f.submit l(:button_save), class: 'btn btn-primary' %>
+  </p>
+<% end %>
+
+<script>
+function toggleGroupSelection() {
+  var select = document.getElementById('group_filter_mode');
+  var container = document.getElementById('group-selection-container');
+  
+  if (select.value === 'all') {
+    container.style.display = 'none';
+  } else {
+    container.style.display = 'block';
+  }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  toggleGroupSelection();
+});
+</script>

@@ -7,11 +7,13 @@ class WlGroupSelection
   ##
   # @param groups [Array(Group)] List of Group objects.
   # @param user [User] A user object.
+  # @param project [Project] A project object for project-scoped filtering.
   #
   # @note params[:user] is currently used for tests only!
   def initialize(**params)
     self.groups = params[:groups] || []
     self.user = define_user(params[:user])
+    self.project = params[:project]
   end
 
   ##
@@ -35,7 +37,7 @@ class WlGroupSelection
 
   private
 
-  attr_accessor :user, :groups
+  attr_accessor :user, :groups, :project
 
   ##
   # Define the current user.
@@ -58,7 +60,14 @@ class WlGroupSelection
   end
 
   def all_groups
-    Group.includes(users: :wl_user_data).distinct.all.to_a
+    base_groups = Group.includes(users: :wl_user_data).distinct.all.to_a
+    
+    # Apply project-level group filtering if in project context
+    if project_context_with_filtering?
+      filter_groups_for_project(base_groups)
+    else
+      base_groups
+    end
   end
 
   def own_groups
@@ -74,6 +83,43 @@ class WlGroupSelection
   end
 
   def allowed_to?(permission)
-    user.allowed_to?(permission.to_sym, nil, global: true)
+    if project
+      user.allowed_to?(permission.to_sym, project)
+    else
+      user.allowed_to?(permission.to_sym, nil, global: true)
+    end
+  end
+
+  # Check if we're in project context with filtering enabled
+  def project_context_with_filtering?
+    project && 
+    Setting.plugin_redmine_workload['menu_scope'] == 'project' && 
+    project_workload_setting&.should_filter_groups?
+  end
+
+  # Filter groups based on project-level configuration
+  def filter_groups_for_project(groups)
+    return groups unless project_workload_setting
+
+    filter_mode = project_workload_setting.group_filter_mode
+    filtered_group_ids = project_workload_setting.filtered_group_ids
+    
+    case filter_mode
+    when 'include'
+      # Only include selected groups
+      groups.select { |group| filtered_group_ids.include?(group.id) }
+    when 'exclude'
+      # Exclude selected groups
+      groups.reject { |group| filtered_group_ids.include?(group.id) }
+    else
+      # Default: show all groups
+      groups
+    end
+  end
+
+  private
+
+  def project_workload_setting
+    @project_workload_setting ||= project ? WlProjectSetting.for_project(project) : nil
   end
 end

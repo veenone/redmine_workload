@@ -172,3 +172,22 @@
 		<em class='info'><%= l(:info_menu_scope) %></em>
 	</p>
 </fieldset>
+
+<fieldset class='box'>
+	<legend><%= l(:label_workload_notifications) %></legend>
+	<p>
+	  <label><%= l(:label_enable_workload_notifications) %></label>
+	  <input type="hidden"
+	         name="settings[enable_workload_notifications]"
+	         value=""
+	  >
+	  <input type="checkbox"
+	         name="settings[enable_workload_notifications]"
+	         value="checked"
+	         <%= "checked" if settings['enable_workload_notifications'] != '' %>
+	  >
+		<em class='info'><%= l(:info_enable_workload_notifications) %></em>
+	</p>
+</fieldset>
+
+
