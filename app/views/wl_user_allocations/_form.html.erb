@@ -1,0 +1,19 @@
+<%= error_messages_for 'wl_user_allocation' %>
+
+<div class="box tabular">
+  <p>
+    <%= f.label :allocation_date, l(:field_date) %>
+    <%= f.text_field :allocation_date, size: 10, required: true %>
+    <%= calendar_for('wl_user_allocation_allocation_date') %>
+  </p>
+
+  <p>
+    <%= f.label :hours, l(:field_hours) %>
+    <%= f.text_field :hours, size: 5, required: true %>
+  </p>
+
+  <p>
+    <%= f.label :description, l(:field_description) %>
+    <%= f.text_field :description, size: 60 %>
+  </p>
+</div>

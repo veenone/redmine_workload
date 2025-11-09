@@ -11,16 +11,20 @@
      lowload = totalWorkload[day][:lowload]
      normalload = totalWorkload[day][:normalload]
      highload = totalWorkload[day][:highload]
+     has_allocation = totalWorkload[day][:has_allocation]
+     allocation_hours = totalWorkload[day][:allocation_hours]
 
      klass  = 'hours'
      klass += ' holiday' if holiday
      klass += ' workingday' if !holiday
      klass += ' today'   if @today === day
      klass += ' ' + load_class_for_hours(hours, lowload, normalload, highload)
+     klass += ' has-allocation' if has_allocation
   %>
-  <td class="<%= klass %>">
+  <td class="<%= klass %>" <%= "title=\"Includes #{sprintf('%.1f', allocation_hours)}h manual allocation\"".html_safe if has_allocation %>>
       <span>
         <%= sprintf("%.1f", hours) %>
+        <%= content_tag(:sup, '●', class: 'allocation-indicator') if has_allocation %>
       </span>
   </td>
 <% end %>

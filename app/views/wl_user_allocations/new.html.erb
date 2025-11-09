@@ -1,0 +1,6 @@
+<h2><%= l(:label_new) %> <%= l(:workload_user_allocation) %></h2>
+
+<%= form_for(@wl_user_allocation, url: wl_user_allocations_path) do |f| %>
+  <%= render partial: 'form', locals: { f: f } %>
+  <%= submit_tag l(:button_create) %>
+<% end %>

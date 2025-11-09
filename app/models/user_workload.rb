@@ -63,7 +63,12 @@ class UserWorkload
 
     result = {}
 
-    issues.group_by(&:assigned_to).each do |assignee, issue_set|
+    # Include assignees with manual allocations but no issues
+    assignees_with_allocations = assignees.select { |a| a.is_a?(User) && has_manual_allocations?(a) }
+    all_assignees = (issues.map(&:assigned_to) + assignees_with_allocations).uniq
+
+    all_assignees.each do |assignee|
+      issue_set = issues.select { |i| i.assigned_to == assignee }
       working_days = working_days_in_time_span(assignee: assignee)
       first_working_day_from_today_on = working_days.select { |day| day >= today }.min || today
       cap = WlDayCapacity.new(assignee: assignee)
@@ -91,6 +96,9 @@ class UserWorkload
           }
         end
       end
+
+      # Add manual allocations to the total workload for this assignee
+      add_manual_allocations_to_total(result[assignee], assignee)
 
       ## Iterate over each issue in the array
       issue_set.each do |issue|
@@ -368,5 +376,39 @@ class UserWorkload
   #
   def threshold_at(cap, holiday, key)
     cap.threshold_at(key, holiday)
+  end
+
+  ##
+  # Checks if a user has any manual allocations within the time span.
+  #
+  # @param assignee [User] The user to check for allocations.
+  # @return [Boolean] True if the user has manual allocations in the time span.
+  #
+  def has_manual_allocations?(assignee)
+    return false unless assignee.is_a?(User)
+    WlUserAllocation.where(user_id: assignee.id, allocation_date: time_span).exists?
+  end
+
+  ##
+  # Adds manual allocation hours to the total workload for an assignee.
+  #
+  # @param assignee_data [Hash] The assignee's workload data hash.
+  # @param assignee [User] The user to get allocations for.
+  #
+  def add_manual_allocations_to_total(assignee_data, assignee)
+    return unless assignee.is_a?(User)
+
+    allocations = WlUserAllocation.for_user_in_range(assignee, time_span)
+
+    allocations.each do |allocation|
+      day = allocation.allocation_date
+      next unless assignee_data[:total].key?(day)
+
+      # Add manual allocation hours to the total for that day
+      assignee_data[:total][day][:hours] += allocation.hours
+      # Mark that this day has a manual allocation
+      assignee_data[:total][day][:has_allocation] = true
+      assignee_data[:total][day][:allocation_hours] = allocation.hours
+    end
   end
 end

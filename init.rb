@@ -46,6 +46,7 @@ Redmine::Plugin.register :redmine_workload do
   permission :view_own_group_workloads, workloads: :index
   permission :edit_national_holiday, wl_national_holiday: %i[create update destroy]
   permission :edit_user_vacations,   wl_user_vacations: %i[create update destroy]
+  permission :edit_user_allocations, wl_user_allocations: %i[index create update destroy bulk_update]
   permission :edit_user_data,        wl_user_datas: :update
 end
 

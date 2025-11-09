@@ -2,6 +2,7 @@
 en:
   permission_edit_national_holiday: "Edit national Holidays"
   permission_edit_user_vacations:   "Edit own vacations"
+  permission_edit_user_allocations: "Edit own workload allocations"
   permission_edit_user_data:        "Edit own workload thresholds"
   permission_view_all_workloads: "View all workloads"
   permission_view_own_workloads: "View own workloads"
@@ -105,3 +106,12 @@ en:
   label_include_parent_tasks: Include parent tasks
   info_include_parent_tasks: If parent tasks would not be considered then only estimated times of child issues will be included in the workload calculation!
   warning_include_parent_tasks: If the workload of parent and child issues should be considered independently then you need to adjust the setting in Administration » Settings » Issue tracking » Parent tasks attributes accordingly.
+  workload_user_allocation_site_title: "Workload Allocation"
+  workload_user_allocation: "Allocation"
+  workload_user_allocation_menu: "My Allocations"
+  workload_user_allocation_description: "Set your daily workload allocation in hours. This will be added to your issue-based workload calculation."
+  notice_user_allocation_saved: "Allocation successfully saved"
+  notice_user_allocations_saved: "Allocations successfully saved"
+  notice_user_allocation_deleted: "Allocation successfully deleted"
+  field_allocation_hours: "Allocated Hours"
+  field_day_of_week: "Day"

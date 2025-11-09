@@ -1,0 +1,12 @@
+<h2><%= l(:label_edit) %> <%= l(:workload_user_allocation) %></h2>
+
+<%= form_for(@wl_user_allocation, url: wl_user_allocation_path(@wl_user_allocation), method: :put) do |f| %>
+  <%= render partial: 'form', locals: { f: f } %>
+  <%= submit_tag l(:button_save) %>
+<% end %>
+
+<%= link_to l(:button_delete),
+            wl_user_allocation_path(@wl_user_allocation),
+            method: :delete,
+            data: { confirm: l(:text_are_you_sure) },
+            class: 'icon icon-del' %>

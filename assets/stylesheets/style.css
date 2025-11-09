@@ -332,4 +332,18 @@ legend {
  #year-nav {
     padding-top: 2rem;
  }
+
+/*******************************************************************************
+ * Styles for workload allocations.
+ ******************************************************************************/
+
+.allocation-indicator {
+    color: #169;
+    font-weight: bold;
+    margin-left: 2px;
+}
+
+.controller-workloads .data .has-allocation {
+    border-bottom: 2px solid #169;
+}
  

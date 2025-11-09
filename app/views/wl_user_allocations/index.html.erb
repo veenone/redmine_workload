@@ -1,0 +1,93 @@
+<div class="contextual">
+  <%= render_action_links %>
+</div>
+
+<h2><%= l(:workload_user_allocation_site_title) %> » <%= @user.name %></h2>
+
+<p class="description">
+  <%= l(:workload_user_allocation_description) %>
+</p>
+
+<%= form_tag(bulk_update_wl_user_allocations_path, method: :post, id: 'allocation-form') do %>
+  <%= hidden_field_tag :user_id, @user.id %>
+  <%= hidden_field_tag :first_day, @first_day %>
+  <%= hidden_field_tag :last_day, @last_day %>
+
+  <div class="autoscroll">
+    <table class="list workload-allocations">
+      <thead>
+        <tr>
+          <th><%= l(:field_date) %></th>
+          <th><%= l(:field_day_of_week) %></th>
+          <th><%= l(:field_hours) %></th>
+          <th><%= l(:field_description) %></th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @date_range.each do |date| %>
+          <% allocation = @allocations_by_date[date] %>
+          <% is_weekend = [6, 7].include?(date.cwday) %>
+          <% css_class = is_weekend ? 'weekend' : '' %>
+          <tr class="<%= css_class %>">
+            <td><%= format_date(date) %></td>
+            <td><%= day_name(date.cwday) %></td>
+            <td>
+              <%= text_field_tag "allocations[#{date}]",
+                                 allocation&.hours,
+                                 size: 5,
+                                 placeholder: "0.0",
+                                 class: 'allocation-hours' %>
+            </td>
+            <td>
+              <% if allocation %>
+                <span class="allocation-description"><%= allocation.description %></span>
+              <% end %>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+
+  <% if @is_allowed %>
+    <p>
+      <%= submit_tag l(:button_save), class: 'button-small' %>
+    </p>
+  <% end %>
+<% end %>
+
+<div class="date-range-selector">
+  <%= form_tag(wl_user_allocations_path, method: :get) do %>
+    <%= hidden_field_tag :user_id, @user.id %>
+    <%= label_tag :first_day, l(:label_date_from) %>
+    <%= text_field_tag :first_day, @first_day, size: 10 %>
+    <%= calendar_for('first_day') %>
+
+    <%= label_tag :last_day, l(:label_date_to) %>
+    <%= text_field_tag :last_day, @last_day, size: 10 %>
+    <%= calendar_for('last_day') %>
+
+    <%= submit_tag l(:button_apply), class: 'button-small' %>
+  <% end %>
+</div>
+
+<style>
+  .workload-allocations tr.weekend {
+    background-color: #f5f5f5;
+  }
+  .allocation-hours {
+    text-align: right;
+  }
+  .date-range-selector {
+    margin-top: 20px;
+    padding: 10px;
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+  }
+  .date-range-selector label {
+    margin-right: 5px;
+  }
+  .date-range-selector input[type="text"] {
+    margin-right: 15px;
+  }
+</style>
