@@ -207,6 +207,11 @@ class UserWorkload
     raise ArgumentError unless time_span.is_a?(Range)
     raise ArgumentError unless today.is_a?(Date)
 
+    # Check if manual allocations exist for this issue
+    if WlIssueAllocation.has_allocations?(issue)
+      return manual_hours_for_issue_per_day(issue, cap, assignee)
+    end
+
     hours_remaining = estimated_time_for_issue(issue)
     working_days = working_days_in_time_span(assignee: assignee)
 
@@ -376,6 +381,43 @@ class UserWorkload
   #
   def threshold_at(cap, holiday, key)
     cap.threshold_at(key, holiday)
+  end
+
+  ##
+  # Returns hours per day for an issue that has manual allocations.
+  # Uses the manually configured allocations instead of automatic distribution.
+  #
+  # @param issue [Issue] The issue object.
+  # @param cap [WlDayCapacity] An object able to calculate the workload day capacity.
+  # @param assignee [User] The assignee of the issue.
+  # @return [Hash] Hash mapping dates to hour information.
+  #
+  def manual_hours_for_issue_per_day(issue, cap, assignee)
+    working_days = working_days_in_time_span(assignee: assignee)
+    allocations = WlIssueAllocation.for_issue_in_range(issue, time_span)
+    result = {}
+
+    time_span.each do |day|
+      holiday = working_days.exclude?(day)
+      allocation = allocations.find { |a| a.allocation_date == day }
+
+      # Determine if issue is active on this day
+      is_active = (issue.start_date.nil? || day >= issue.start_date) &&
+                  (issue.due_date.nil? || day <= issue.due_date)
+
+      result[day] = {
+        hours: allocation&.hours || 0.0,
+        active: is_active,
+        noEstimate: false,
+        holiday: holiday,
+        lowload: threshold_at(cap, holiday, :lowload),
+        normalload: threshold_at(cap, holiday, :normalload),
+        highload: threshold_at(cap, holiday, :highload),
+        manual_allocation: allocation.present?
+      }
+    end
+
+    result
   end
 
   ##

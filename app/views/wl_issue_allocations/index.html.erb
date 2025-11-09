@@ -1,0 +1,684 @@
+<div class="contextual">
+  <%= link_to l(:button_back), issue_path(@issue), class: 'icon icon-cancel' %>
+</div>
+
+<h2><%= l(:workload_issue_allocation_site_title) %></h2>
+
+<div class="issue-info-box">
+  <div class="issue-header">
+    <h3><%= link_to "##{@issue.id}", issue_path(@issue) %>: <%= @issue.subject %></h3>
+  </div>
+  <div class="issue-details">
+    <div class="detail-row">
+      <span class="label"><%= l(:field_assigned_to) %>:</span>
+      <span class="value"><%= @issue.assigned_to || l(:label_none) %></span>
+    </div>
+    <div class="detail-row">
+      <span class="label"><%= l(:field_start_date) %>:</span>
+      <span class="value"><%= format_date(@issue.start_date) || l(:label_none) %></span>
+    </div>
+    <div class="detail-row">
+      <span class="label"><%= l(:field_due_date) %>:</span>
+      <span class="value"><%= format_date(@issue.due_date) || l(:label_none) %></span>
+    </div>
+    <div class="detail-row">
+      <span class="label"><%= l(:field_estimated_hours) %>:</span>
+      <span class="value"><%= @issue.estimated_hours || 0 %>h</span>
+    </div>
+    <div class="detail-row">
+      <span class="label"><%= l(:field_done_ratio) %>:</span>
+      <span class="value"><%= @issue.done_ratio %>%</span>
+    </div>
+    <div class="detail-row highlight">
+      <span class="label"><%= l(:label_estimated_remaining) %>:</span>
+      <span class="value"><strong><%= number_with_precision(@estimated_remaining, precision: 2) %>h</strong></span>
+    </div>
+  </div>
+</div>
+
+<% if @issue.assigned_to.nil? %>
+  <div class="flash warning">
+    <%= l(:error_issue_not_assigned) %>
+  </div>
+<% elsif @issue.start_date.nil? || @issue.due_date.nil? || @issue.estimated_hours.nil? %>
+  <div class="flash warning">
+    <%= l(:error_issue_missing_dates_or_estimate) %>
+  </div>
+<% end %>
+
+<div class="allocation-actions">
+  <%= form_tag(auto_distribute_wl_issue_allocations_path, method: :post, style: 'display: inline;') do %>
+    <%= hidden_field_tag :issue_id, @issue.id %>
+    <%= submit_tag l(:button_auto_distribute),
+                   class: 'icon icon-reload',
+                   title: l(:help_auto_distribute),
+                   data: { confirm: l(:text_are_you_sure) } %>
+  <% end %>
+
+  <%= form_tag(reset_wl_issue_allocations_path, method: :post, style: 'display: inline; margin-left: 10px;') do %>
+    <%= hidden_field_tag :issue_id, @issue.id %>
+    <%= submit_tag l(:button_reset_allocations),
+                   class: 'icon icon-del',
+                   title: l(:help_reset_allocations),
+                   data: { confirm: l(:text_are_you_sure) } %>
+  <% end %>
+</div>
+
+<%= form_tag(bulk_update_wl_issue_allocations_path, method: :post, id: 'allocation-form') do %>
+  <%= hidden_field_tag :issue_id, @issue.id %>
+  <%= hidden_field_tag :first_day, @first_day %>
+  <%= hidden_field_tag :last_day, @last_day %>
+
+  <div class="table-wrapper">
+    <table class="list issue-allocations-horizontal">
+      <thead>
+        <tr class="week-header">
+          <th class="task-column" rowspan="2">
+            <%= l(:field_subject) %>
+          </th>
+          <% @weeks.each_with_index do |week, week_index| %>
+            <%
+              week_start = week.first
+              week_end = week.last
+              week_label = "Week #{week_start.cweek}, #{week_start.year}"
+              week_range = "#{format_date(week_start)} - #{format_date(week_end)}"
+              total_days = week.count
+            %>
+            <th colspan="<%= total_days %>" class="week-group">
+              <div class="week-title"><%= week_label %></div>
+              <div class="week-range"><%= week_range %></div>
+            </th>
+          <% end %>
+          <th rowspan="2" class="total-column">
+            <%= l(:label_total_allocated) %>
+          </th>
+        </tr>
+        <tr class="day-header">
+          <% @weeks.each do |week| %>
+            <% week.each do |date| %>
+              <%
+                is_weekend = [6, 7].include?(date.cwday)
+                day_abbr = date.strftime('%a')
+                day_num = date.day
+                css_class = []
+                css_class << 'weekend' if is_weekend
+                css_class << 'today' if date == Date.today
+              %>
+              <th class="day-cell <%= css_class.join(' ') %>">
+                <div class="day-abbr"><%= day_abbr %></div>
+                <div class="day-num"><%= day_num %></div>
+              </th>
+            <% end %>
+          <% end %>
+        </tr>
+      </thead>
+      <tbody>
+        <tr class="allocation-row">
+          <td class="task-cell">
+            <div class="task-name"><%= truncate(@issue.subject, length: 50) %></div>
+            <div class="task-meta">
+              <span class="tracker"><%= @issue.tracker.name %></span>
+              <span class="priority <%= @issue.priority.name.downcase %>"><%= @issue.priority.name %></span>
+            </div>
+          </td>
+
+          <% total_allocated = 0.0 %>
+          <% @weeks.each do |week| %>
+            <% week.each do |date| %>
+              <%
+                allocation = @allocations_by_date[date]
+                is_weekend = [6, 7].include?(date.cwday)
+                within_issue_range = (@issue.start_date.nil? || date >= @issue.start_date) &&
+                                     (@issue.due_date.nil? || date <= @issue.due_date)
+
+                hours_value = allocation&.hours
+                total_allocated += hours_value.to_f if hours_value
+
+                css_class = []
+                css_class << 'weekend' if is_weekend
+                css_class << 'outside-range' unless within_issue_range
+                css_class << 'has-allocation' if allocation
+                css_class << 'today' if date == Date.today
+              %>
+              <td class="hours-cell <%= css_class.join(' ') %>">
+                <%= text_field_tag "allocations[#{date}]",
+                                   hours_value,
+                                   size: 4,
+                                   placeholder: within_issue_range && !is_weekend ? "0" : "",
+                                   class: 'hours-input',
+                                   disabled: !within_issue_range,
+                                   title: format_date(date) %>
+              </td>
+            <% end %>
+          <% end %>
+
+          <td class="total-cell">
+            <strong id="total-hours"><%= number_with_precision(total_allocated, precision: 2) %></strong>h
+          </td>
+        </tr>
+      </tbody>
+      <tfoot>
+        <tr class="summary-row">
+          <td class="summary-label"><%= l(:label_estimated_remaining) %></td>
+          <% @weeks.each do |week| %>
+            <% week.each do |date| %>
+              <td class="summary-cell"></td>
+            <% end %>
+          <% end %>
+          <td class="summary-value">
+            <strong><%= number_with_precision(@estimated_remaining, precision: 2) %>h</strong>
+          </td>
+        </tr>
+        <tr class="summary-row difference-row">
+          <td class="summary-label"><%= l(:label_allocation_difference) %></td>
+          <% @weeks.each do |week| %>
+            <% week.each do |date| %>
+              <td class="summary-cell"></td>
+            <% end %>
+          <% end %>
+          <td class="summary-value <%= (total_allocated - @estimated_remaining).abs < 0.01 ? 'balanced' : 'unbalanced' %>">
+            <% difference = total_allocated - @estimated_remaining %>
+            <strong><%= number_with_precision(difference, precision: 2, strip_insignificant_zeros: true) %>h</strong>
+            <% if difference.abs < 0.01 %>
+              <span class="status-icon balanced" title="Balanced">✓</span>
+            <% elsif difference > 0 %>
+              <span class="status-icon over" title="Over-allocated">⚠</span>
+            <% else %>
+              <span class="status-icon under" title="Under-allocated">⚠</span>
+            <% end %>
+          </td>
+        </tr>
+      </tfoot>
+    </table>
+  </div>
+
+  <p class="submit-section">
+    <%= submit_tag l(:button_save), class: 'button-small' %>
+    <span class="help-text"><%= l(:help_issue_allocation) %></span>
+  </p>
+<% end %>
+
+<div class="date-range-selector">
+  <%= form_tag(wl_issue_allocations_path, method: :get) do %>
+    <%= hidden_field_tag :issue_id, @issue.id %>
+    <div class="range-controls">
+      <div class="range-field">
+        <%= label_tag :first_day, l(:label_date_from) %>
+        <%= text_field_tag :first_day, @first_day, size: 10 %>
+        <%= calendar_for('first_day') %>
+      </div>
+
+      <div class="range-field">
+        <%= label_tag :last_day, l(:label_date_to) %>
+        <%= text_field_tag :last_day, @last_day, size: 10 %>
+        <%= calendar_for('last_day') %>
+      </div>
+
+      <div class="range-field">
+        <%= submit_tag l(:button_apply), class: 'button-small' %>
+      </div>
+    </div>
+  <% end %>
+</div>
+
+<style>
+  /* Issue Info Box */
+  .issue-info-box {
+    background: linear-gradient(to bottom, #f9f9f9, #ffffff);
+    border: 1px solid #d7d7d7;
+    padding: 15px 20px;
+    margin-bottom: 20px;
+    border-radius: 4px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  }
+
+  .issue-header h3 {
+    margin: 0 0 15px 0;
+    font-size: 16px;
+    color: #333;
+    border-bottom: 1px solid #e0e0e0;
+    padding-bottom: 10px;
+  }
+
+  .issue-details {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 8px 20px;
+  }
+
+  .detail-row {
+    display: flex;
+    align-items: center;
+    font-size: 13px;
+  }
+
+  .detail-row .label {
+    font-weight: 500;
+    color: #666;
+    margin-right: 8px;
+    min-width: 100px;
+  }
+
+  .detail-row .value {
+    color: #333;
+  }
+
+  .detail-row.highlight {
+    background-color: #fffbea;
+    padding: 5px 8px;
+    border-radius: 3px;
+    border-left: 3px solid #ffc107;
+  }
+
+  /* Actions */
+  .allocation-actions {
+    margin: 15px 0;
+    padding: 12px;
+    background-color: #f5f5f5;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  /* Table Wrapper */
+  .table-wrapper {
+    overflow-x: auto;
+    margin: 20px 0;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  }
+
+  /* Horizontal Table */
+  .issue-allocations-horizontal {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+    font-size: 12px;
+  }
+
+  .issue-allocations-horizontal th,
+  .issue-allocations-horizontal td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: center;
+    vertical-align: middle;
+  }
+
+  /* Task Column */
+  .task-column {
+    min-width: 200px;
+    max-width: 250px;
+    background: #f9f9f9;
+    font-weight: bold;
+    position: sticky;
+    left: 0;
+    z-index: 3;
+    border-right: 2px solid #999;
+  }
+
+  .task-cell {
+    min-width: 200px;
+    max-width: 250px;
+    text-align: left;
+    padding: 12px;
+    background: #fafafa;
+    position: sticky;
+    left: 0;
+    z-index: 2;
+    border-right: 2px solid #999;
+  }
+
+  .task-name {
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 5px;
+    line-height: 1.3;
+  }
+
+  .task-meta {
+    display: flex;
+    gap: 8px;
+    font-size: 11px;
+  }
+
+  .task-meta .tracker {
+    background: #e3f2fd;
+    color: #1976d2;
+    padding: 2px 6px;
+    border-radius: 3px;
+  }
+
+  .task-meta .priority {
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-weight: 600;
+  }
+
+  .task-meta .priority.high,
+  .task-meta .priority.urgent,
+  .task-meta .priority.immediate {
+    background: #ffebee;
+    color: #c62828;
+  }
+
+  .task-meta .priority.normal {
+    background: #fff3e0;
+    color: #e65100;
+  }
+
+  .task-meta .priority.low {
+    background: #e8f5e9;
+    color: #2e7d32;
+  }
+
+  /* Week Header */
+  .week-header th.week-group {
+    background: linear-gradient(to bottom, #5c9ccc, #4a8ab8);
+    color: white;
+    font-weight: bold;
+    border-left: 2px solid #3a7a98;
+    border-right: 2px solid #3a7a98;
+    padding: 10px 8px;
+  }
+
+  .week-title {
+    font-size: 13px;
+    font-weight: 700;
+    margin-bottom: 3px;
+  }
+
+  .week-range {
+    font-size: 11px;
+    font-weight: 400;
+    opacity: 0.9;
+  }
+
+  /* Day Header */
+  .day-header th.day-cell {
+    background: #e3f2fd;
+    color: #1565c0;
+    font-weight: 600;
+    min-width: 60px;
+    padding: 6px 4px;
+  }
+
+  .day-header th.day-cell.weekend {
+    background: #f5f5f5;
+    color: #757575;
+  }
+
+  .day-header th.day-cell.today {
+    background: #fff3e0;
+    color: #e65100;
+    border: 2px solid #ff9800;
+  }
+
+  .day-abbr {
+    font-size: 11px;
+    text-transform: uppercase;
+    font-weight: 700;
+  }
+
+  .day-num {
+    font-size: 14px;
+    margin-top: 2px;
+  }
+
+  /* Hours Cell */
+  .hours-cell {
+    padding: 4px;
+    background: white;
+    min-width: 60px;
+  }
+
+  .hours-cell.weekend {
+    background: #fafafa;
+  }
+
+  .hours-cell.outside-range {
+    background: #ffebee;
+    opacity: 0.5;
+  }
+
+  .hours-cell.has-allocation {
+    background: #e8f5e9;
+  }
+
+  .hours-cell.today {
+    border: 2px solid #ff9800;
+    background: #fff8e1;
+  }
+
+  .hours-input {
+    width: 100%;
+    max-width: 50px;
+    padding: 4px;
+    text-align: center;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+    font-size: 12px;
+    font-family: monospace;
+    font-weight: 600;
+  }
+
+  .hours-input:focus {
+    outline: none;
+    border-color: #2196f3;
+    box-shadow: 0 0 0 2px rgba(33, 150, 243, 0.2);
+  }
+
+  .hours-input:disabled {
+    background: #f5f5f5;
+    cursor: not-allowed;
+    opacity: 0.6;
+  }
+
+  /* Total Column */
+  .total-column {
+    min-width: 100px;
+    background: #fff3e0;
+    font-weight: bold;
+    color: #e65100;
+    position: sticky;
+    right: 0;
+    z-index: 3;
+    border-left: 2px solid #ff9800;
+  }
+
+  .total-cell {
+    background: #fff8e1;
+    font-size: 14px;
+    color: #e65100;
+    font-weight: bold;
+    position: sticky;
+    right: 0;
+    z-index: 2;
+    border-left: 2px solid #ff9800;
+  }
+
+  /* Footer */
+  .issue-allocations-horizontal tfoot {
+    background: #f5f5f5;
+    font-weight: 600;
+  }
+
+  .summary-row td {
+    padding: 10px;
+  }
+
+  .summary-label {
+    text-align: left;
+    padding-left: 12px;
+    color: #555;
+    position: sticky;
+    left: 0;
+    background: #f5f5f5;
+    border-right: 2px solid #999;
+    z-index: 2;
+  }
+
+  .summary-cell {
+    background: #fafafa;
+  }
+
+  .summary-value {
+    font-size: 14px;
+    position: sticky;
+    right: 0;
+    background: #f5f5f5;
+    border-left: 2px solid #ff9800;
+    z-index: 2;
+  }
+
+  .summary-value.balanced {
+    background: #e8f5e9;
+    color: #2e7d32;
+  }
+
+  .summary-value.unbalanced {
+    background: #fff3e0;
+    color: #e65100;
+  }
+
+  .difference-row .summary-value {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+
+  .status-icon {
+    font-size: 16px;
+    line-height: 1;
+  }
+
+  .status-icon.balanced {
+    color: #4caf50;
+  }
+
+  .status-icon.over,
+  .status-icon.under {
+    color: #ff9800;
+  }
+
+  /* Submit Section */
+  .submit-section {
+    margin: 20px 0;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+  }
+
+  .help-text {
+    color: #666;
+    font-size: 13px;
+    font-style: italic;
+  }
+
+  /* Date Range Selector */
+  .date-range-selector {
+    margin-top: 30px;
+    padding: 15px;
+    background: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+  }
+
+  .range-controls {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    flex-wrap: wrap;
+  }
+
+  .range-field {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .range-field label {
+    font-weight: 600;
+    color: #555;
+  }
+
+  /* Warning */
+  .flash.warning {
+    padding: 12px 15px;
+    background: #fff3cd;
+    border: 1px solid #ffc107;
+    border-radius: 4px;
+    margin: 15px 0;
+    color: #856404;
+  }
+
+  /* Responsive */
+  @media (max-width: 1200px) {
+    .issue-details {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    .day-cell {
+      min-width: 50px;
+    }
+
+    .hours-input {
+      max-width: 45px;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .issue-details {
+      grid-template-columns: 1fr;
+    }
+
+    .allocation-actions {
+      flex-direction: column;
+      align-items: stretch;
+    }
+
+    .range-controls {
+      flex-direction: column;
+      align-items: stretch;
+    }
+
+    .task-column,
+    .task-cell {
+      min-width: 150px;
+    }
+  }
+</style>
+
+<script>
+  // Auto-calculate total when inputs change
+  document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('allocation-form');
+    if (!form) return;
+
+    const inputs = form.querySelectorAll('.hours-input');
+    const totalElement = document.getElementById('total-hours');
+
+    function updateTotal() {
+      let total = 0;
+      inputs.forEach(input => {
+        if (!input.disabled && input.value) {
+          const value = parseFloat(input.value);
+          if (!isNaN(value)) {
+            total += value;
+          }
+        }
+      });
+      if (totalElement) {
+        totalElement.textContent = total.toFixed(2);
+      }
+    }
+
+    inputs.forEach(input => {
+      input.addEventListener('input', updateTotal);
+      input.addEventListener('change', updateTotal);
+    });
+  });
+</script>

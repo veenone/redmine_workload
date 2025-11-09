@@ -11,3 +11,11 @@ resources :wl_user_allocations do
     post :bulk_update
   end
 end
+
+resources :wl_issue_allocations, only: %i[index destroy] do
+  collection do
+    post :bulk_update
+    post :reset
+    post :auto_distribute
+  end
+end

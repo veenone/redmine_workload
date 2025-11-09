@@ -48,6 +48,7 @@ Redmine::Plugin.register :redmine_workload do
   permission :edit_user_vacations,   wl_user_vacations: %i[create update destroy]
   permission :edit_user_allocations, wl_user_allocations: %i[index create update destroy bulk_update]
   permission :edit_user_data,        wl_user_datas: :update
+  permission :manage_issue_allocations, wl_issue_allocations: %i[index bulk_update destroy reset auto_distribute]
 end
 
 if Rails.version < '6'
