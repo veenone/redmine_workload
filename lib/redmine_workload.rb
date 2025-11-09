@@ -16,6 +16,23 @@ require File.expand_path('redmine_workload/wl_user_data_defaults', __dir__)
 module RedmineWorkload
   # Check whether Redmine is running postgresql database
   def self.postgresql?
-    ActiveRecord::Base.configurations[Rails.env]['adapter'] == 'postgresql'
+    # Rails 6.1+ uses DatabaseConfigurations object
+    # Rails < 6.1 uses a simple hash
+    if ActiveRecord::Base.configurations.respond_to?(:configs_for)
+      # Rails 6.1+ API
+      config = ActiveRecord::Base.configurations.configs_for(env_name: Rails.env).first
+      config&.adapter == 'postgresql'
+    else
+      # Rails < 6.1 API
+      ActiveRecord::Base.configurations[Rails.env]['adapter'] == 'postgresql'
+    end
+  rescue StandardError
+    # Fallback: try using connection_db_config (available in Rails 6.1+)
+    begin
+      ActiveRecord::Base.connection_db_config.adapter == 'postgresql'
+    rescue StandardError
+      # Last resort: check connection adapter class
+      ActiveRecord::Base.connection.adapter_name.downcase == 'postgresql'
+    end
   end
 end
