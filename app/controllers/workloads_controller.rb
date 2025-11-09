@@ -1,8 +1,6 @@
 # frozen_string_literal: true
 
 class WorkloadsController < ApplicationController
-  unloadable
-
   helper :gantt
   helper :issues
   helper :projects

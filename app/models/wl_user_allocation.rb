@@ -1,6 +1,4 @@
 class WlUserAllocation < ActiveRecord::Base
-  unloadable
-
   belongs_to :user
 
   validates :user_id, :allocation_date, :hours, presence: true

@@ -1,8 +1,6 @@
 # frozen_string_literal: true
 
 class WlNationalHoliday < ActiveRecord::Base
-  unloadable
-
   validates :start, date: true
   validates :end,   date: true
   validates :start, :end, :reason, presence: true
