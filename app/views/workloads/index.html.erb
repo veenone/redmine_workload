@@ -8,6 +8,18 @@
 
 <% if @date_check %>
   <%= error_messages_for 'query' %>
+
+  <% if defined?(@use_container_hierarchy) && @use_container_hierarchy %>
+    <%= render partial: 'container_filters' %>
+  <% end %>
+
+  <% if @selected_year %>
+    <div class="year-view-indicator" style="background: #e3f2fd; padding: 10px; margin-bottom: 10px; border-left: 4px solid #2196f3; border-radius: 3px;">
+      <strong>📅 Year View:</strong> Displaying all 12 months of <%= @selected_year %>
+      <span style="color: #666; margin-left: 10px;">(Scroll horizontally to view all months)</span>
+    </div>
+  <% end %>
+
   <div class="wrapper">
     <table class="data">
       <thead>

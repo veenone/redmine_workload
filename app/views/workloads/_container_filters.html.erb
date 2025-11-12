@@ -1,0 +1,121 @@
+<div class="container-filters-section">
+  <h3><%= l(:label_container_filters) %></h3>
+
+  <div class="filter-options">
+    <div class="filter-group">
+      <label><%= l(:label_filter_by_status) %>:</label>
+      <select id="container-status-filter" class="filter-select">
+        <option value="all"><%= l(:label_all) %></option>
+        <option value="not-started"><%= l(:label_not_started) %> (0%)</option>
+        <option value="in-progress"><%= l(:label_in_progress) %> (1-99%)</option>
+        <option value="complete"><%= l(:label_complete) %> (100%)</option>
+      </select>
+    </div>
+
+    <div class="filter-group">
+      <label><%= l(:label_sort_by) %>:</label>
+      <select id="container-sort-by" class="filter-select">
+        <option value="default"><%= l(:label_default_order) %></option>
+        <option value="completion-asc"><%= l(:label_completion_ascending) %></option>
+        <option value="completion-desc"><%= l(:label_completion_descending) %></option>
+        <option value="hours-asc"><%= l(:label_hours_ascending) %></option>
+        <option value="hours-desc"><%= l(:label_hours_descending) %></option>
+        <option value="tasks-asc"><%= l(:label_tasks_ascending) %></option>
+        <option value="tasks-desc"><%= l(:label_tasks_descending) %></option>
+      </select>
+    </div>
+
+    <div class="filter-group">
+      <button type="button" id="toggle-all-containers" class="button-small">
+        <%= l(:button_expand_all) %>
+      </button>
+      <button type="button" id="toggle-all-members" class="button-small">
+        <%= l(:button_show_all_members) %>
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Container status filter
+    var statusFilter = document.getElementById('container-status-filter');
+    if (statusFilter) {
+      statusFilter.addEventListener('change', function() {
+        var filterValue = this.value;
+        var containers = document.querySelectorAll('.container-total-workload');
+
+        containers.forEach(function(container) {
+          var statsText = container.querySelector('.stats-text');
+          if (!statsText) {
+            container.style.display = filterValue === 'all' ? '' : 'none';
+            return;
+          }
+
+          var completionMatch = statsText.textContent.match(/(\d+(?:\.\d+)?)%/);
+          if (!completionMatch) {
+            container.style.display = filterValue === 'all' ? '' : 'none';
+            return;
+          }
+
+          var completion = parseFloat(completionMatch[1]);
+          var show = false;
+
+          switch(filterValue) {
+            case 'all':
+              show = true;
+              break;
+            case 'not-started':
+              show = completion === 0;
+              break;
+            case 'in-progress':
+              show = completion > 0 && completion < 100;
+              break;
+            case 'complete':
+              show = completion === 100;
+              break;
+          }
+
+          var tasksBody = container.nextElementSibling;
+          var memberBody = tasksBody ? tasksBody.nextElementSibling : null;
+
+          container.style.display = show ? '' : 'none';
+          if (tasksBody && tasksBody.classList.contains('container-tasks')) {
+            tasksBody.style.display = show ? '' : 'none';
+          }
+          if (memberBody && memberBody.classList.contains('container-member-summary')) {
+            memberBody.style.display = show ? 'none' : 'none'; // Keep hidden by default
+          }
+        });
+      });
+    }
+
+    // Toggle all containers
+    var toggleAllBtn = document.getElementById('toggle-all-containers');
+    if (toggleAllBtn) {
+      var allExpanded = false;
+      toggleAllBtn.addEventListener('click', function() {
+        var containers = document.querySelectorAll('.container-tasks');
+        containers.forEach(function(container) {
+          container.style.display = allExpanded ? 'none' : '';
+        });
+        allExpanded = !allExpanded;
+        this.textContent = allExpanded ? '<%= l(:button_collapse_all) %>' : '<%= l(:button_expand_all) %>';
+      });
+    }
+
+    // Toggle all member summaries
+    var toggleMembersBtn = document.getElementById('toggle-all-members');
+    if (toggleMembersBtn) {
+      var membersShown = false;
+      toggleMembersBtn.addEventListener('click', function() {
+        var memberSections = document.querySelectorAll('.container-member-summary');
+        memberSections.forEach(function(section) {
+          section.style.display = membersShown ? 'none' : 'table-row-group';
+        });
+        membersShown = !membersShown;
+        this.textContent = membersShown ? '<%= l(:button_hide_all_members) %>' : '<%= l(:button_show_all_members) %>';
+      });
+    }
+  });
+</script>

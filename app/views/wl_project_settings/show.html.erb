@@ -1,0 +1,83 @@
+<h2><%= l(:workload_title) %> - <%= l(:label_settings) %></h2>
+
+<%= form_for @wl_project_setting,
+             url: project_wl_project_settings_path(@project),
+             method: :put,
+             html: { class: 'tabular' } do |f| %>
+
+  <%= error_messages_for 'wl_project_setting' %>
+
+  <fieldset>
+    <legend><%= l(:label_tracker_plural) %> - <%= l(:label_container_trackers) %></legend>
+
+    <p class="description">
+      <%= l(:description_container_trackers) %>
+    </p>
+
+    <div class="box tabular">
+      <% @trackers.each do |tracker| %>
+        <p>
+          <%= check_box_tag 'wl_project_setting[container_tracker_ids][]',
+                            tracker.id,
+                            @wl_project_setting.container_tracker_ids&.include?(tracker.id),
+                            id: "container_tracker_#{tracker.id}" %>
+          <%= label_tag "container_tracker_#{tracker.id}", tracker.name %>
+        </p>
+      <% end %>
+      <%= hidden_field_tag 'wl_project_setting[container_tracker_ids][]', '' %>
+    </div>
+  </fieldset>
+
+  <fieldset>
+    <legend><%= l(:label_group_filter) %></legend>
+
+    <p class="description">
+      <%= l(:description_group_filter) %>
+    </p>
+
+    <p>
+      <%= f.select :group_filter_mode,
+                   options_for_select(
+                     [
+                       [l(:description_all_groups), 'all'],
+                       [l(:description_selected_groups), 'selected']
+                     ],
+                     @wl_project_setting.group_filter_mode
+                   ) %>
+    </p>
+
+    <div id="filtered_groups" style="<%= 'display: none;' if @wl_project_setting.group_filter_mode == 'all' %>">
+      <% Group.sorted.each do |group| %>
+        <p>
+          <%= check_box_tag 'wl_project_setting[filtered_group_ids][]',
+                            group.id,
+                            @wl_project_setting.filtered_group_ids&.include?(group.id),
+                            id: "filtered_group_#{group.id}" %>
+          <%= label_tag "filtered_group_#{group.id}", group.name %>
+        </p>
+      <% end %>
+      <%= hidden_field_tag 'wl_project_setting[filtered_group_ids][]', '' %>
+    </div>
+  </fieldset>
+
+  <p>
+    <%= submit_tag l(:button_save) %>
+  </p>
+<% end %>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    var groupFilterMode = document.getElementById('wl_project_setting_group_filter_mode');
+    var filteredGroups = document.getElementById('filtered_groups');
+
+    if (groupFilterMode) {
+      groupFilterMode.addEventListener('change', function() {
+        if (this.value === 'selected') {
+          filteredGroups.style.display = 'block';
+        } else {
+          filteredGroups.style.display = 'none';
+        }
+      });
+    }
+  });
+</script>

@@ -35,6 +35,7 @@
       klass += ' estimated'     if !dataForDay[:noEstimate]
       klass += ' today'         if  @today === day
       klass += ' ' + load_class_for_hours(hours, lowload, normalload, highload)
+      klass += ' firstDayOfMonth' if day.day == 1
 
       hoursString = (hours.abs < 0.01) ? '' : sprintf("%.1f", hours)
   %>

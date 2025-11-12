@@ -115,10 +115,11 @@ legend {
 }
 
 .controller-workloads .data {
-    table-layout: fixed;
+    table-layout: auto;
     border-spacing: 0 3px;
     border-collapse: collapse;
     margin-bottom: 10px;
+    width: auto;
 }
 
 .controller-workloads .data th {
@@ -162,9 +163,8 @@ legend {
     text-align: left;
     border-left: 1px solid var(--mediumgray);
     border-right: 1px solid var(--mediumgray);
-    width:     300px;
-    min-width: 300px;
-    max-width: 300px;
+    min-width: 250px;
+    max-width: none;
 }
 
 .controller-workloads .data .group-description {
@@ -346,4 +346,526 @@ legend {
 .controller-workloads .data .has-allocation {
     border-bottom: 2px solid #169;
 }
- 
+
+/*******************************************************************************
+ * Modern table styling (matching task effort distribution).
+ ******************************************************************************/
+
+.controller-workloads .wrapper {
+    overflow-x: auto;
+    margin: 20px 0;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    background: white;
+    position: relative;
+}
+
+/* Sticky first column for horizontal scrolling */
+.controller-workloads .data tbody th:first-child,
+.controller-workloads .data thead td:first-child {
+    position: sticky;
+    left: 0;
+    z-index: 10;
+    background: white;
+    box-shadow: 2px 0 4px rgba(0,0,0,0.1);
+}
+
+.controller-workloads .data thead td:first-child {
+    z-index: 11;
+}
+
+.controller-workloads .data {
+    width: auto;
+    min-width: 100%;
+    background: white;
+    margin-bottom: 0;
+}
+
+/* Modern header styling */
+.controller-workloads .data .workload_hdr {
+    background: linear-gradient(to bottom, #5c9ccc, #4a8ab8);
+    color: white;
+    border: 1px solid #3a7a98;
+    font-weight: 600;
+}
+
+.controller-workloads .data .month-name {
+    background: linear-gradient(to bottom, #5c9ccc, #4a8ab8);
+    color: white;
+    font-weight: bold;
+    border-left: 3px solid #2a5a78;
+    border-top: 1px solid #3a7a98;
+    padding: 8px 4px;
+}
+
+/* Stronger month boundaries for year view */
+.controller-workloads .data .day-of-month.firstDayOfMonth,
+.controller-workloads .data .day-of-week.firstDayOfWeek:has(+ td.firstDayOfMonth),
+.controller-workloads .data th.day-of-month.firstDayOfMonth,
+.controller-workloads .data th.day-of-week.firstDayOfWeek {
+    border-left-width: 3px;
+    border-left-color: #2a5a78;
+}
+
+/* Month separator for data cells */
+.controller-workloads .data tbody td:nth-child(n) {
+    position: relative;
+}
+
+.controller-workloads .data tbody tr td.firstDayOfMonth,
+.controller-workloads .data tbody tr td[data-first-of-month="true"] {
+    border-left: 3px solid #2a5a78;
+}
+
+.controller-workloads .data .num-of-week {
+    background: #e3f2fd;
+    color: #1565c0;
+    font-weight: 600;
+    border-left: 1px solid #90caf9;
+}
+
+.controller-workloads .data .num-of-week.first-day-of-week {
+    border-left: 2px solid #3a7a98;
+}
+
+.controller-workloads .data .day-of-month,
+.controller-workloads .data .day-of-week {
+    background: #e3f2fd;
+    color: #1565c0;
+    font-weight: 600;
+    padding: 6px 4px;
+    min-width: 40px;
+}
+
+/* Weekend styling */
+.controller-workloads .data .day-of-week:nth-child(6),
+.controller-workloads .data .day-of-week:nth-child(7),
+.controller-workloads .data .day-of-month:nth-child(6),
+.controller-workloads .data .day-of-month:nth-child(7) {
+    background: #f5f5f5;
+    color: #757575;
+}
+
+/* Today highlighting */
+.controller-workloads .data .today {
+    background: #fff3e0 !important;
+    color: #e65100 !important;
+    border: 2px solid #ff9800 !important;
+    border-right: 2px solid #ff9800 !important;
+    font-weight: bold;
+}
+
+/* Row headers (user, project, issue descriptions) */
+.controller-workloads .data .group-description,
+.controller-workloads .data .user-description {
+    background: #f9f9f9;
+    font-weight: bold;
+    border-left: 2px solid #3a7a98;
+}
+
+.controller-workloads .data .project-description {
+    background: #fafafa;
+    font-weight: 600;
+}
+
+.controller-workloads .data .issue-description {
+    background: white;
+}
+
+/* Improved cell styling */
+.controller-workloads .data td.hours {
+    border: 1px solid #e0e0e0;
+    transition: background-color 0.2s ease;
+}
+
+.controller-workloads .data td.hours:hover {
+    background-color: #f5f5f5 !important;
+}
+
+/* Better workload level colors */
+.controller-workloads .data .low span {
+    background: linear-gradient(135deg, #4caf50 0%, #66bb6a 100%);
+    color: white;
+}
+
+.controller-workloads .data .normal span {
+    background: linear-gradient(135deg, #ffc107 0%, #ffb300 100%);
+    color: #333;
+}
+
+.controller-workloads .data .high span {
+    background: linear-gradient(135deg, #f44336 0%, #e53935 100%);
+    color: white;
+}
+
+/* Row hover effects */
+.controller-workloads .data .user-total-workload:hover,
+.controller-workloads .data .project-total-workload:hover {
+    background-color: #e8f4f8 !important;
+}
+
+.controller-workloads .data .issue-workloads:hover {
+    background-color: #e3f2fd !important;
+}
+
+/* Improved spacing */
+.controller-workloads .data th,
+.controller-workloads .data td {
+    padding: 8px;
+}
+
+.controller-workloads .data .hours span {
+    padding-top: 0.5em;
+    padding-bottom: 0.5em;
+    border-radius: 3px;
+}
+
+/* Card-like appearance for table sections */
+.controller-workloads .data tbody {
+    border-top: 2px solid #e0e0e0;
+}
+
+.controller-workloads .data tbody:first-of-type {
+    border-top: none;
+}
+
+/* Sticky first column for better scrolling */
+.controller-workloads .data th:first-child,
+.controller-workloads .data td:first-child {
+    position: sticky;
+    left: 0;
+    z-index: 10;
+    background: #fff;
+    box-shadow: 2px 0 4px rgba(0,0,0,0.1);
+    min-width: 250px;
+    max-width: none;
+    white-space: nowrap;
+}
+
+.controller-workloads .data .workload_hdr:first-child {
+    z-index: 20;
+    background: #fff;
+}
+
+/* Ensure container headers have proper background when frozen */
+.controller-workloads .container-header td:first-child {
+    background: linear-gradient(to bottom, #e8f0fe, #d2e3fc) !important;
+}
+
+/* Ensure task rows have proper background when frozen */
+.controller-workloads .data tbody tr:not(.container-header) td:first-child {
+    background: #fff !important;
+}
+
+/* Year filter */
+.year-filter {
+    margin-bottom: 15px;
+}
+
+.year-filter label {
+    font-weight: bold;
+    margin-right: 8px;
+}
+
+.year-filter select {
+    padding: 5px 10px;
+    border-radius: 3px;
+    border: 1px solid #ccc;
+    font-size: 0.95em;
+}
+
+.year-range-display {
+    padding: 10px;
+    background: #e8f0fe;
+    border-radius: 3px;
+    margin-top: 10px;
+    border: 1px solid #4285f4;
+}
+
+/* Week and Year navigation buttons */
+.week-navigation,
+.year-navigation {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 15px;
+}
+
+.week-navigation .button-small,
+.year-navigation .button-small {
+    padding: 6px 12px;
+    background: linear-gradient(to bottom, #5c9ccc, #4a8ab8);
+    color: white;
+    text-decoration: none;
+    border-radius: 3px;
+    font-size: 0.9em;
+    transition: background 0.2s ease;
+    border: 1px solid #3a7aa8;
+}
+
+.week-navigation .button-small:hover,
+.year-navigation .button-small:hover {
+    background: linear-gradient(to bottom, #4a8ab8, #3a7aa8);
+}
+
+/*******************************************************************************
+ * Container hierarchy styling (matching modern design).
+ ******************************************************************************/
+
+.controller-workloads .container-filters-section {
+    background: linear-gradient(to bottom, #f8f9fa, #ffffff);
+    border: 1px solid #ccc;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+}
+
+.controller-workloads .container-header {
+    background: linear-gradient(to bottom, #e8f0fe, #d2e3fc) !important;
+    border-top: 2px solid #4285f4 !important;
+    box-shadow: 0 1px 2px rgba(66, 133, 244, 0.1);
+}
+
+.controller-workloads .container-stats-badge {
+    background: linear-gradient(to bottom, #ffffff, #f8f9fa);
+    border: 1px solid #d2e3fc;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+}
+
+.controller-workloads .container-total-cell {
+    background: linear-gradient(to bottom, #e8f0fe, #dae7f9) !important;
+}
+
+.controller-workloads .container-total-cell.has-hours {
+    background: linear-gradient(to bottom, #d2e3fc, #bbdefb) !important;
+}
+
+.controller-workloads .member-allocation-table {
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    border: 1px solid #e0e0e0;
+}
+
+.controller-workloads .member-allocation-table th {
+    background: linear-gradient(to bottom, #e8f0fe, #d2e3fc);
+    color: #1565c0;
+}
+
+.controller-workloads .orphan-header {
+    background: linear-gradient(to bottom, #fff3e0, #ffe0b2) !important;
+    border-top: 2px solid #ff9800 !important;
+    box-shadow: 0 1px 2px rgba(255, 152, 0, 0.1);
+}
+
+.controller-workloads .task-under-container {
+    background-color: #fafafa;
+}
+
+.controller-workloads .task-under-container:hover {
+    background-color: #e3f2fd !important;
+}
+
+.controller-workloads .task-under-container.even {
+    background-color: #ffffff;
+}
+
+/* Improved visual hierarchy */
+.controller-workloads .data .container-description {
+    font-size: 1.05em;
+    padding: 12px 15px !important;
+}
+
+.controller-workloads .data .task-description {
+    padding: 8px 8px 8px 35px !important;
+}
+
+/* Smooth transitions */
+.controller-workloads .container-tasks,
+.controller-workloads .container-member-summary {
+    transition: all 0.3s ease;
+}
+
+/* Better visual separation */
+.controller-workloads tbody.container-tasks {
+    border-bottom: 2px solid #ccc;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.controller-workloads tbody.container-member-summary {
+    border-bottom: 3px solid #4285f4;
+    background: linear-gradient(to bottom, #f8f9fa, #ffffff);
+}
+
+/* Container element styling */
+.controller-workloads .container-icon {
+    font-size: 1.2em;
+    margin-right: 5px;
+}
+
+.controller-workloads .container-task-count {
+    color: #666;
+    font-size: 0.9em;
+    font-weight: normal;
+    margin-left: 10px;
+}
+
+.controller-workloads .container-stats-badge {
+    display: inline-block;
+    margin-left: 15px;
+    padding: 4px 10px;
+    border-radius: 4px;
+    font-size: 0.85em;
+    font-weight: normal;
+    position: relative;
+}
+
+.controller-workloads .progress-indicator {
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    background: linear-gradient(90deg, #4caf50 0%, #8bc34a 100%);
+    border-radius: 4px 0 0 4px;
+    opacity: 0.2;
+    transition: width 0.3s ease;
+}
+
+.controller-workloads .stats-text {
+    position: relative;
+    z-index: 1;
+    color: #333;
+}
+
+.controller-workloads .container-total-cell {
+    border-left: 1px solid #ddd;
+    text-align: center;
+}
+
+.controller-workloads .container-total-hours {
+    font-weight: bold;
+    color: #1a73e8;
+}
+
+.controller-workloads .task-indent {
+    color: #999;
+    margin-right: 8px;
+    font-family: monospace;
+    font-size: 1.1em;
+}
+
+/* Member summary */
+.controller-workloads .member-summary-content {
+    padding: 15px;
+    background-color: #f8f9fa;
+}
+
+.controller-workloads .member-summary-content h4 {
+    margin: 0 0 10px 0;
+    color: #1a73e8;
+    font-size: 1em;
+}
+
+.controller-workloads .member-allocation-table {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: #fff;
+    margin-top: 10px;
+}
+
+.controller-workloads .member-allocation-table th {
+    padding: 8px;
+    text-align: left;
+    font-size: 0.9em;
+    border-bottom: 2px solid #4285f4;
+}
+
+.controller-workloads .member-allocation-table td {
+    padding: 6px 8px;
+    border-bottom: 1px solid #eee;
+    font-size: 0.9em;
+}
+
+.controller-workloads .member-row:hover {
+    background-color: #f5f5f5;
+}
+
+.controller-workloads .member-task-count,
+.controller-workloads .member-hours {
+    text-align: right;
+    font-weight: 500;
+}
+
+.controller-workloads .task-badge {
+    display: inline-block;
+    margin-right: 4px;
+    padding: 2px 6px;
+    background-color: #e3f2fd;
+    border-radius: 3px;
+    font-size: 0.85em;
+}
+
+.controller-workloads .task-badge a {
+    color: #1976d2;
+    text-decoration: none;
+}
+
+.controller-workloads .task-badge a:hover {
+    text-decoration: underline;
+}
+
+.controller-workloads .more-tasks {
+    color: #666;
+    font-size: 0.85em;
+    font-style: italic;
+}
+
+.controller-workloads .orphan-icon {
+    font-size: 1.2em;
+    margin-right: 5px;
+}
+
+.controller-workloads .orphan-total-cell {
+    background-color: #fff3e0;
+    border-left: 1px solid #ddd;
+}
+
+/* Container filter controls */
+.controller-workloads .container-filters-section {
+    padding: 10px 15px;
+    margin-bottom: 15px;
+    border-radius: 4px;
+}
+
+.controller-workloads .container-filters-section h3 {
+    margin: 0 0 10px 0;
+    font-size: 1em;
+    color: #333;
+}
+
+.controller-workloads .filter-options {
+    display: flex;
+    gap: 20px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.controller-workloads .filter-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.controller-workloads .filter-group label {
+    font-weight: 500;
+    font-size: 0.9em;
+    margin: 0;
+}
+
+.controller-workloads .filter-select {
+    padding: 4px 8px;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+    font-size: 0.9em;
+    background: white;
+}
+
+.controller-workloads .filter-group button {
+    margin: 0;
+}

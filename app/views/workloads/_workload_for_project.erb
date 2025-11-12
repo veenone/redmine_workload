@@ -28,11 +28,49 @@
 	<%= render :partial => 'total_workload', :locals => { :totalWorkload => data[:total], :user => user } %>
   </tr>
 </tbody>
-<tbody class="issue-workloads <%= css_group_user_project_class(group&.id, user&.id, project&.id) %>">
-  <% # Iterate over all issues for the project %>
-  <% issuesForUser = data.keys.select{|x| x.kind_of?(Issue)} %>
-     <% issuesForUser.each_with_index do |issue, index| %>
-
-     <%= render :partial => 'workload_for_issue', :locals => { :group => group, :user => user, :issue => issue, :data => data[issue], :index => index } %>
+<% if defined?(@use_container_hierarchy) && @use_container_hierarchy && defined?(@issues_by_container) %>
+  <% # Hierarchical view with containers %>
+  <% # Render containers with their tasks %>
+  <% @issues_by_container.each do |container_key, tasks| %>
+    <% if container_key == :unassigned %>
+      <% # Render orphan tasks without container %>
+      <tbody class="orphan-tasks <%= css_group_user_project_class(group&.id, user&.id, project&.id) %>">
+        <tr class="orphan-header">
+          <th class="orphan-description" scope="row">
+            <span class="orphan-icon">📋</span>
+            <%= l(:label_unassigned_tasks) %>
+            <span class="container-task-count">(<%= tasks.size %> <%= tasks.size == 1 ? 'task' : 'tasks' %>)</span>
+          </th>
+          <% @time_span_to_display.each do |day| %>
+            <td class="orphan-total-cell">&nbsp;</td>
+          <% end %>
+        </tr>
+      </tbody>
+      <tbody class="orphan-task-list <%= css_group_user_project_class(group&.id, user&.id, project&.id) %>">
+        <% tasks.each_with_index do |task, index| %>
+          <% if data[task] %>
+            <%= render :partial => 'workload_for_issue', :locals => { :group => group, :user => user, :issue => task, :data => data[task], :index => index } %>
+          <% end %>
+        <% end %>
+      </tbody>
+    <% else %>
+      <% # Render container with its tasks %>
+      <%= render :partial => 'workload_for_container',
+                 :locals => { :group => group,
+                             :user => user,
+                             :container => container_key,
+                             :tasks => tasks,
+                             :data => data } %>
+    <% end %>
   <% end %>
-</tbody>
+<% else %>
+  <% # Standard flat view %>
+  <tbody class="issue-workloads <%= css_group_user_project_class(group&.id, user&.id, project&.id) %>">
+    <% # Iterate over all issues for the project %>
+    <% issuesForUser = data.keys.select{|x| x.kind_of?(Issue)} %>
+       <% issuesForUser.each_with_index do |issue, index| %>
+
+       <%= render :partial => 'workload_for_issue', :locals => { :group => group, :user => user, :issue => issue, :data => data[issue], :index => index } %>
+    <% end %>
+  </tbody>
+<% end %>

@@ -16,6 +16,26 @@ module WorkloadsHelper
   end
 
   ##
+  # Writes the css class for a group, user, and container combined.
+  # @see css_group_class
+  # @see css_user_class
+  # @see css_container_class
+  #
+  def css_group_user_container_class(group_id, user_id, container_id)
+    "#{css_group_class(group_id)} #{css_user_class(user_id)} #{css_container_class(container_id)}"
+  end
+
+  ##
+  # Writes the css class for a container.
+  # @param container_id [Integer] The container issue id.
+  #
+  def css_container_class(container_id)
+    return unless container_id
+
+    "container-#{container_id}"
+  end
+
+  ##
   # Writes the css class for a project.
   # @param project_id [Integer] The project id.
   #

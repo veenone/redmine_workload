@@ -1,30 +1,62 @@
 <%= form_tag({}, {:method => :get, :id => 'filter_form', :class => 'filters'}) do %>
-  
+
   	<h3><%=l(:workload_title)%> <%=l(:workload_show_filters) %></h3>
   	<fieldset>
   		<legend><%= l(:workload_show_range) %></legend>
-    	<div class="timespan">      
-          <table>
-          	<tr>          		
-	     	  <td>
-			      <%= label_tag :workload_first_day, l(:workload_show_rangefrom) %>	     	  	
-	     	  </td>
-	     	  <td>
-	     	  	  <%= text_field_tag :workload_first_day, @first_day, :name => 'workload[first_day]', :size => 10 %>
-			      <%= calendar_for('workload_first_day') %>
-	     	  </td>
-	       </tr>
-	      	<tr>
-	      		<td><%= label_tag :workload_last_day, l(:workload_show_rangeto) %></td>
-	      		<td><%= text_field_tag :workload_last_day, @last_day, :name => 'workload[last_day]', :size => 10 %><%= calendar_for('workload_last_day') %></td>
-	      	</tr>
-	      	<tr>
-	      		<td><%= label_tag :workload_start_date, l(:workload_show_today) %></td>
-	      		<td><%= text_field_tag :workload_start_date, @today, :name => 'workload[start_date]', :size => 10 %><%= calendar_for('workload_start_date') %></td>
-	      	</tr>
-	      </table>
-	      
-    	</div>    
+    	<div class="timespan">
+    	  <div class="year-filter" style="margin-bottom: 15px; padding: 10px; background: #f5f5f5; border-radius: 4px;">
+    	    <%= label_tag :workload_year, '📅 View by Year:', style: 'font-weight: bold;' %>
+    	    <%= select_tag :workload_year,
+    	        options_for_select([['Custom Range (use date filters below)', '']] + ((Time.zone.today.year - 2)..(Time.zone.today.year + 2)).map { |y| ["#{y} (Full Year)", y] }, @selected_year),
+    	        name: 'workload[year]',
+    	        onchange: "this.form.submit();",
+    	        style: 'margin-left: 10px; padding: 5px;' %>
+    	    <% if @selected_year %>
+    	      <span style="color: #2196f3; margin-left: 10px; font-size: 0.9em;">✓ Showing all 12 months</span>
+    	    <% end %>
+    	  </div>
+
+    	  <% if @selected_year %>
+    	    <div class="year-navigation" style="margin-bottom: 15px;">
+    	      <%= link_to '◄ Previous Year', workloads_path(workload: { year: @selected_year - 1, users: params.dig(:workload, :users), groups: params.dig(:workload, :groups) }.compact), class: 'button-small' %>
+    	      <%= link_to 'This Year', workloads_path(workload: { year: Time.zone.today.year, users: params.dig(:workload, :users), groups: params.dig(:workload, :groups) }.compact), class: 'button-small' %>
+    	      <%= link_to 'Next Year ►', workloads_path(workload: { year: @selected_year + 1, users: params.dig(:workload, :users), groups: params.dig(:workload, :groups) }.compact), class: 'button-small' %>
+    	    </div>
+    	  <% end %>
+
+    	  <% unless @selected_year %>
+    	    <div class="week-navigation" style="margin-bottom: 15px;">
+    	      <%= link_to '◄ Previous Week', workloads_path(workload: { first_day: @first_day - 7, last_day: @last_day - 7, start_date: @today, users: params.dig(:workload, :users), groups: params.dig(:workload, :groups) }.compact), class: 'button-small' %>
+    	      <%= link_to 'This Week', workloads_path(workload: { first_day: Time.zone.today, last_day: Time.zone.today + 20, start_date: Time.zone.today, users: params.dig(:workload, :users), groups: params.dig(:workload, :groups) }.compact), class: 'button-small' %>
+    	      <%= link_to 'Next Week ►', workloads_path(workload: { first_day: @first_day + 7, last_day: @last_day + 7, start_date: @today, users: params.dig(:workload, :users), groups: params.dig(:workload, :groups) }.compact), class: 'button-small' %>
+    	    </div>
+
+            <table>
+            	<tr>
+  	     	  <td>
+  		      <%= label_tag :workload_first_day, l(:workload_show_rangefrom) %>
+  	     	  </td>
+  	     	  <td>
+  	     	  	  <%= text_field_tag :workload_first_day, @first_day, :name => 'workload[first_day]', :size => 10 %>
+  		      <%= calendar_for('workload_first_day') %>
+  	     	  </td>
+  	       </tr>
+  	      	<tr>
+  	      		<td><%= label_tag :workload_last_day, l(:workload_show_rangeto) %></td>
+  	      		<td><%= text_field_tag :workload_last_day, @last_day, :name => 'workload[last_day]', :size => 10 %><%= calendar_for('workload_last_day') %></td>
+  	      	</tr>
+  	      	<tr>
+  	      		<td><%= label_tag :workload_start_date, l(:workload_show_today) %></td>
+  	      		<td><%= text_field_tag :workload_start_date, @today, :name => 'workload[start_date]', :size => 10 %><%= calendar_for('workload_start_date') %></td>
+  	      	</tr>
+  	      </table>
+  	    <% else %>
+  	      <div class="year-range-display" style="padding: 10px; background: #f5f5f5; border-radius: 3px; margin-top: 10px;">
+  	        <strong>Viewing:</strong> <%= @first_day.strftime('%B %d, %Y') %> - <%= @last_day.strftime('%B %d, %Y') %>
+  	      </div>
+  	    <% end %>
+
+    	</div>
   </fieldset>
   <br>
   <fieldset>

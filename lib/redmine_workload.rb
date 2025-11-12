@@ -3,6 +3,7 @@
 require File.expand_path('redmine_workload/extensions/user_patch', __dir__)
 require File.expand_path('redmine_workload/hooks/after_plugins_loaded_hook', __dir__)
 require File.expand_path('redmine_workload/hooks/issue_hook', __dir__)
+require File.expand_path('redmine_workload/hooks/project_settings_hook', __dir__)
 require File.expand_path('redmine_workload/group_workload_preparer', __dir__)
 require File.expand_path('redmine_workload/user_workload_preparer', __dir__)
 require File.expand_path('redmine_workload/wl_calculation_restrictions', __dir__)

@@ -1,0 +1,177 @@
+<%#
+# Renders the workload data for one container with its child tasks
+# Parameters:
+#  * group: The group (if applicable)
+#  * user: The user to render the data for.
+#  * container: The container issue
+#  * tasks: Array of task issues under this container
+#  * data: The workload data hash for the project
+%>
+
+<%
+  # Calculate container totals by summing all task hours for each day
+  container_totals = {}
+  @time_span_to_display.each do |day|
+    total_hours = 0.0
+    tasks.each do |task|
+      task_data = data[task]
+      if task_data && task_data[day]
+        total_hours += task_data[day][:hours].to_f
+      end
+    end
+    container_totals[day] = total_hours
+  end
+
+  # Get container statistics if available
+  if defined?(@user_workload_instance) && @user_workload_instance
+    container_stats = @user_workload_instance.container_statistics(container, tasks)
+    member_summary = @user_workload_instance.container_member_summary(container, tasks)
+  else
+    container_stats = nil
+    member_summary = {}
+  end
+%>
+
+<tbody class="container-total-workload <%= css_group_user_project_class(group&.id, user&.id, container.project&.id) %>">
+  <tr class="container-header">
+    <th class="container-description <%= css_group_user_container_class(group&.id, user&.id, container&.id) %>" scope="row" title="<%= l(:workload_trigger_tooltip) %>">
+      <%= render :partial => 'trigger', :locals => {:trigger_for => css_group_user_container_class(group&.id, user&.id, container&.id) } %>
+      <span class="container-icon">📦</span>
+      <%= link_to "#{container.tracker.name} ##{container.id}: #{container.subject}", issue_path(container) %>
+      <span class="container-task-count">(<%= tasks.size %> <%= tasks.size == 1 ? 'task' : 'tasks' %>)</span>
+      <% if container_stats %>
+        <span class="container-stats-badge">
+          <span class="progress-indicator" style="width: <%= container_stats[:completion_percentage] %>%" title="<%= container_stats[:completion_percentage] %>% complete"></span>
+          <span class="stats-text">
+            <%= container_stats[:completion_percentage] %>% |
+            <%= container_stats[:remaining_hours] %>h / <%= container_stats[:total_hours] %>h |
+            👥 <%= container_stats[:members_count] %>
+          </span>
+        </span>
+      <% end %>
+    </th>
+    <% # Print container totals (sum of all task hours per day) %>
+    <% @time_span_to_display.each do |day| %>
+      <%
+        total = container_totals[day]
+        total_string = (total.abs < 0.01) ? '' : sprintf("%.1f", total)
+      %>
+      <td class="container-total-cell <%= 'has-hours' if total > 0 %>">
+        <span class="container-total-hours"><%= total_string %></span>
+      </td>
+    <% end %>
+  </tr>
+</tbody>
+
+<tbody class="container-tasks <%= css_group_user_container_class(group&.id, user&.id, container&.id) %>">
+  <% # Iterate over all tasks under this container %>
+  <% tasks.each_with_index do |task, index| %>
+    <% task_data = data[task] %>
+    <% if task_data %>
+      <%
+        klass  = (index % 2 == 0) ? 'even' : 'odd'
+        klass += ' overdue' if !task.due_date.nil? && (task.due_date < @today)
+        klass += ' task-under-container'
+      %>
+      <tr class="issue-workloads <%= css_group_user_project_class(group&.id, user&.id, task.project&.id) %> <%= klass %>">
+        <th class="issue-description task-description" scope="row">
+          <span class="task-indent">└─</span>
+          <div class="tooltip"><%= link_to_issue(task) %>
+            <span class="tip"><%= render_issue_tooltip(task) %></span>
+          </div>
+        </th>
+        <%
+          task_data.keys.compact.sort.each do |day|
+            dataForDay = task_data[day]
+            hours = dataForDay[:hours]
+            lowload = dataForDay[:lowload]
+            normalload = dataForDay[:normalload]
+            highload = dataForDay[:highload]
+            cell_class  = 'hours'
+            cell_class += ' active'        if  dataForDay[:active]
+            cell_class += ' not-active'    if !dataForDay[:active]
+            cell_class += ' holiday'       if  dataForDay[:holiday]
+            cell_class += ' workingday'    if !dataForDay[:holiday]
+            cell_class += ' not-estimated' if  dataForDay[:noEstimate]
+            cell_class += ' estimated'     if !dataForDay[:noEstimate]
+            cell_class += ' today'         if  @today === day
+            cell_class += ' ' + load_class_for_hours(hours, lowload, normalload, highload)
+
+            hoursString = (hours.abs < 0.01) ? '' : sprintf("%.1f", hours)
+        %>
+          <td class="<%= cell_class %>">
+            <span><%= hoursString %></span>
+          </td>
+        <% end %>
+      </tr>
+    <% end %>
+  <% end %>
+</tbody>
+
+<% if member_summary.present? && member_summary.size > 1 %>
+  <tbody class="container-member-summary <%= css_group_user_container_class(group&.id, user&.id, container&.id) %>" style="display: none;">
+    <tr class="member-summary-header">
+      <th colspan="<%= @time_span_to_display.size + 1 %>" class="member-summary-title">
+        <div class="member-summary-content">
+          <h4><%= l(:label_member_allocation_summary) %></h4>
+          <table class="member-allocation-table">
+            <thead>
+              <tr>
+                <th><%= l(:field_user) %></th>
+                <th><%= l(:label_task_count) %></th>
+                <th><%= l(:label_total_hours) %></th>
+                <th><%= l(:label_tasks) %></th>
+              </tr>
+            </thead>
+            <tbody>
+              <% member_summary.sort_by { |u, s| -s[:total_hours] }.each do |assignee, stats| %>
+                <tr class="member-row">
+                  <td class="member-name">
+                    <% if assignee.is_a?(User) %>
+                      <%= link_to assignee.name, user_path(assignee) %>
+                    <% else %>
+                      <%= assignee.name %>
+                    <% end %>
+                  </td>
+                  <td class="member-task-count"><%= stats[:task_count] %></td>
+                  <td class="member-hours"><%= sprintf("%.1f", stats[:total_hours]) %>h</td>
+                  <td class="member-tasks">
+                    <% stats[:tasks].first(3).each do |task| %>
+                      <span class="task-badge"><%= link_to "##{task.id}", issue_path(task), title: task.subject %></span>
+                    <% end %>
+                    <% if stats[:tasks].size > 3 %>
+                      <span class="more-tasks">+<%= stats[:tasks].size - 3 %> more</span>
+                    <% end %>
+                  </td>
+                </tr>
+              <% end %>
+            </tbody>
+          </table>
+        </div>
+      </th>
+    </tr>
+  </tbody>
+<% end %>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Add click handlers for container headers to toggle member summary
+    document.querySelectorAll('.container-description').forEach(function(header) {
+      header.style.cursor = 'pointer';
+      header.addEventListener('dblclick', function(e) {
+        // Find the corresponding member summary tbody
+        var containerClass = header.className.match(/container-\d+/);
+        if (containerClass) {
+          var memberSummary = document.querySelector('.container-member-summary.' + containerClass[0]);
+          if (memberSummary) {
+            if (memberSummary.style.display === 'none') {
+              memberSummary.style.display = 'table-row-group';
+            } else {
+              memberSummary.style.display = 'none';
+            }
+          }
+        }
+      });
+    });
+  });
+</script>

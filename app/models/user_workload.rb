@@ -9,13 +9,118 @@ class UserWorkload
   include RedmineWorkload::WlIssueQuery
   include RedmineWorkload::WlIssueState
 
-  attr_reader :assignees, :issues, :time_span, :today
+  attr_reader :assignees, :issues, :time_span, :today, :project
 
-  def initialize(assignees:, time_span:, today:, issues: nil)
+  def initialize(assignees:, time_span:, today:, issues: nil, project: nil)
     self.assignees = assignees
-    self.issues = open_issues_for_users(assignees, issues)
+    self.project = project
+    self.issues = open_issues_for_users(assignees, issues, project)
     self.time_span = time_span
     self.today = today
+  end
+
+  ##
+  # Returns issues organized by container hierarchy when in project context
+  # Returns hash: { container_issue => [task_issues], :unassigned => [orphan_tasks] }
+  #
+  def issues_by_container
+    return {} unless project
+
+    project_setting = WlProjectSetting.for_project(project)
+    container_tracker_ids = project_setting.container_tracker_ids || []
+
+    return {} if container_tracker_ids.empty?
+
+    # Separate containers from tasks
+    containers = issues.select { |i| container_tracker_ids.include?(i.tracker_id) }
+    tasks = issues.reject { |i| container_tracker_ids.include?(i.tracker_id) }
+
+    result = {}
+
+    # Group tasks under their parent containers
+    containers.each do |container|
+      # Find tasks that are children of this container or related through parent relationship
+      container_tasks = tasks.select do |task|
+        task.parent_id == container.id ||
+        (task.parent && task.parent.id == container.id)
+      end
+      result[container] = container_tasks
+    end
+
+    # Find orphan tasks (not under any container)
+    assigned_task_ids = result.values.flatten.map(&:id)
+    orphan_tasks = tasks.reject { |t| assigned_task_ids.include?(t.id) }
+    result[:unassigned] = orphan_tasks unless orphan_tasks.empty?
+
+    result
+  end
+
+  ##
+  # Check if we should use container hierarchy view
+  #
+  def use_container_hierarchy?
+    return false unless project
+
+    project_setting = WlProjectSetting.for_project(project)
+    container_tracker_ids = project_setting.container_tracker_ids || []
+    !container_tracker_ids.empty?
+  end
+
+  ##
+  # Returns member allocation summary for a container
+  # Returns hash: { user => { total_hours: X, task_count: Y, tasks: [issues] } }
+  #
+  def container_member_summary(container, tasks)
+    summary = {}
+
+    tasks.each do |task|
+      next unless task.assigned_to
+
+      assignee = task.assigned_to
+      summary[assignee] ||= { total_hours: 0.0, task_count: 0, tasks: [] }
+
+      # Calculate total estimated hours for this task
+      if task.estimated_hours
+        remaining = task.estimated_hours * ((100.0 - task.done_ratio) / 100.0)
+        summary[assignee][:total_hours] += remaining
+      end
+
+      summary[assignee][:task_count] += 1
+      summary[assignee][:tasks] << task
+    end
+
+    summary
+  end
+
+  ##
+  # Returns container statistics
+  # Returns hash with: total_tasks, total_hours, completion_percentage, members
+  #
+  def container_statistics(container, tasks)
+    total_tasks = tasks.size
+    total_hours = 0.0
+    completed_hours = 0.0
+    members = Set.new
+
+    tasks.each do |task|
+      members.add(task.assigned_to) if task.assigned_to
+
+      if task.estimated_hours
+        total_hours += task.estimated_hours
+        completed_hours += task.estimated_hours * (task.done_ratio / 100.0)
+      end
+    end
+
+    completion_percentage = total_hours > 0 ? (completed_hours / total_hours * 100).round(1) : 0
+
+    {
+      total_tasks: total_tasks,
+      total_hours: total_hours.round(2),
+      remaining_hours: (total_hours - completed_hours).round(2),
+      completion_percentage: completion_percentage,
+      members_count: members.size,
+      members: members.to_a
+    }
   end
 
   ##
@@ -178,7 +283,7 @@ class UserWorkload
 
   private
 
-  attr_writer :assignees, :issues, :time_span, :today
+  attr_writer :assignees, :issues, :time_span, :today, :project
 
   ##
   # Returns the hours per day for the given issue. The result is only computed

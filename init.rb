@@ -26,6 +26,17 @@ Redmine::Plugin.register :redmine_workload do
                                                               nil, global: true)
            }
 
+  menu :project_menu,
+       :workload,
+       { controller: 'workloads', action: 'index' },
+       caption: :workload_title,
+       param: :project_id,
+       if: proc { |project|
+             User.current.allowed_to?(:view_all_workloads, project) ||
+               User.current.allowed_to?(:view_own_workloads, project) ||
+               User.current.allowed_to?(:view_own_group_workloads, project)
+           }
+
   settings partial: 'settings/workload_settings',
            default: {
              'general_workday_monday' => 'checked',
@@ -49,6 +60,7 @@ Redmine::Plugin.register :redmine_workload do
   permission :edit_user_allocations, wl_user_allocations: %i[index create update destroy bulk_update]
   permission :edit_user_data,        wl_user_datas: :update
   permission :manage_issue_allocations, wl_issue_allocations: %i[index bulk_update destroy reset auto_distribute]
+  permission :manage_project_workload_settings, wl_project_settings: %i[show update], require: :member
 end
 
 if Rails.version < '6'
