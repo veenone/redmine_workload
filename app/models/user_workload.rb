@@ -216,7 +216,8 @@ class UserWorkload
         #   double counting, a missing start_date will be ignored as criteria of
         #   beeing unscheduled.
         if issue_overdue?(issue, today)
-          result[assignee][:overdue_hours] += hours_for_issue[first_working_day_from_today_on][:hours]
+          overdue_hours = hours_for_issue[first_working_day_from_today_on]&.dig(:hours) || remaining_estimated_hours
+          result[assignee][:overdue_hours] += overdue_hours
           result[assignee][:overdue_number] += 1
         elsif issue.due_date.nil?
           result[assignee][:unscheduled_hours] += remaining_estimated_hours
@@ -255,7 +256,8 @@ class UserWorkload
           #   double counting, a missing start_date will be ignored as criteria of
           #   beeing unscheduled.
           if issue_overdue?(issue, today)
-            result[assignee][project][:overdue_hours] += hours_for_issue[first_working_day_from_today_on][:hours]
+            project_overdue_hours = hours_for_issue[first_working_day_from_today_on]&.dig(:hours) || remaining_estimated_hours
+            result[assignee][project][:overdue_hours] += project_overdue_hours
             result[assignee][project][:overdue_number] += 1
           elsif issue.due_date.nil?
             result[assignee][project][:unscheduled_hours] += remaining_estimated_hours
