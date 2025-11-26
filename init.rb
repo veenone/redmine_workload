@@ -22,8 +22,11 @@ Redmine::Plugin.register :redmine_workload do
        { controller: 'workloads', action: 'index' },
        caption: :workload_title,
        if: proc {
-             User.current.logged? && User.current.allowed_to?({ controller: :workloads, action: :index },
-                                                              nil, global: true)
+             settings = Setting.plugin_redmine_workload || {}
+             global_menu_enabled = settings['disable_global_workload_menu'].blank?
+             global_menu_enabled &&
+               User.current.logged? &&
+               User.current.allowed_to?({ controller: :workloads, action: :index }, nil, global: true)
            }
 
   menu :project_menu,
@@ -49,7 +52,8 @@ Redmine::Plugin.register :redmine_workload do
              'threshold_lowload_min' => 0.1,
              'threshold_normalload_min' => 7,
              'threshold_highload_min' => 8.5,
-             'workload_of_parent_issues' => ''
+             'workload_of_parent_issues' => '',
+             'disable_global_workload_menu' => ''
            }
 
   permission :view_all_workloads, workloads: :index

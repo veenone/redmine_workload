@@ -5,13 +5,10 @@
 
 <% @time_span_to_display&.each do |current_day|%>
   <%
-    if (current_day.cwday == 1) then
-      klass = ' first-day-of-week'
-    elsif (current_day.cwday == 7) then
-      klass = ' last-day-of-week'
-    else
-      klass = ''
-    end
+    klass = ''
+    klass += ' first-day-of-week' if current_day.cwday == 1
+    klass += ' last-day-of-week' if current_day.cwday == 7
+    klass += ' weekend' if current_day.cwday == 6 || current_day.cwday == 7
   %>
   <th class="num-of-week<%= klass %>" scope="col">
     <%= tag.small current_day.cweek if current_day.cwday == 4 %>

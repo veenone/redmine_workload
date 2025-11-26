@@ -251,10 +251,7 @@ class UserWorkload
             end
           end
 
-          # Add the issue to the project workload summary unless its overdue or unscheduled.
-          # @note issue_overdue? implies there is a due_date. In order to avoid
-          #   double counting, a missing start_date will be ignored as criteria of
-          #   beeing unscheduled.
+          # Track overdue and unscheduled issues separately for display purposes
           if issue_overdue?(issue, today)
             project_overdue_hours = hours_for_issue[first_working_day_from_today_on]&.dig(:hours) || remaining_estimated_hours
             result[assignee][project][:overdue_hours] += project_overdue_hours
@@ -262,10 +259,11 @@ class UserWorkload
           elsif issue.due_date.nil?
             result[assignee][project][:unscheduled_hours] += remaining_estimated_hours
             result[assignee][project][:unscheduled_number] += 1
-          else
-            result[assignee][project][:total] =
-              add_issue_info_to_summary(result[assignee][project][:total], hours_for_issue, assignee)
           end
+
+          # Always add issue hours to project total so it reflects sum of all issues listed
+          result[assignee][project][:total] =
+            add_issue_info_to_summary(result[assignee][project][:total], hours_for_issue, assignee)
 
           # Add it to the issues for that project in any case.
           result[assignee][project][issue] = hours_for_issue
@@ -466,7 +464,8 @@ class UserWorkload
     time_span.each do |day|
       holiday = { hours: 0.0, holiday: working_days_in_time_span(assignee: assignee).exclude?(day) }
       summary[day] = holiday unless summary.key?(day)
-      summary[day][:hours] += issue_info[day][:hours]
+      # Safely add hours, handling nil issue_info for the day
+      summary[day][:hours] += issue_info[day][:hours] if issue_info[day]
     end
 
     summary

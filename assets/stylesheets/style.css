@@ -361,19 +361,6 @@ legend {
     position: relative;
 }
 
-/* Sticky first column for horizontal scrolling */
-.controller-workloads .data tbody th:first-child,
-.controller-workloads .data thead td:first-child {
-    position: sticky;
-    left: 0;
-    z-index: 10;
-    background: white;
-    box-shadow: 2px 0 4px rgba(0,0,0,0.1);
-}
-
-.controller-workloads .data thead td:first-child {
-    z-index: 11;
-}
 
 .controller-workloads .data {
     width: auto;
@@ -438,13 +425,20 @@ legend {
     min-width: 40px;
 }
 
-/* Weekend styling */
-.controller-workloads .data .day-of-week:nth-child(6),
-.controller-workloads .data .day-of-week:nth-child(7),
-.controller-workloads .data .day-of-month:nth-child(6),
-.controller-workloads .data .day-of-month:nth-child(7) {
+/* Weekend styling for header rows */
+.controller-workloads .data .day-of-week.weekend,
+.controller-workloads .data .day-of-month.weekend,
+.controller-workloads .data .num-of-week.weekend {
     background: #f5f5f5;
     color: #757575;
+}
+
+/* Week boundary - right border after Sunday (end of week) */
+.controller-workloads .data .day-of-week.lastDayOfWeek,
+.controller-workloads .data .day-of-month.lastDayOfWeek,
+.controller-workloads .data .num-of-week.last-day-of-week,
+.controller-workloads .data td.lastDayOfWeek {
+    border-right: 2px solid #3a7a98;
 }
 
 /* Today highlighting */
@@ -530,9 +524,15 @@ legend {
     border-top: none;
 }
 
-/* Sticky first column for better scrolling */
-.controller-workloads .data th:first-child,
-.controller-workloads .data td:first-child {
+/* Sticky first column (resource column) for better scrolling */
+.controller-workloads .data .group-description,
+.controller-workloads .data .user-description,
+.controller-workloads .data .project-description,
+.controller-workloads .data .issue-description,
+.controller-workloads .data .invisible-workload-description,
+.controller-workloads .data .container-description,
+.controller-workloads .data .task-description,
+.controller-workloads .data thead td:first-child {
     position: sticky;
     left: 0;
     z-index: 10;
@@ -543,19 +543,14 @@ legend {
     white-space: nowrap;
 }
 
-.controller-workloads .data .workload_hdr:first-child {
+.controller-workloads .data thead td.workload_hdr:first-child {
     z-index: 20;
     background: #fff;
 }
 
 /* Ensure container headers have proper background when frozen */
-.controller-workloads .container-header td:first-child {
+.controller-workloads .container-header .container-description {
     background: linear-gradient(to bottom, #e8f0fe, #d2e3fc) !important;
-}
-
-/* Ensure task rows have proper background when frozen */
-.controller-workloads .data tbody tr:not(.container-header) td:first-child {
-    background: #fff !important;
 }
 
 /* Year filter */

@@ -5,13 +5,11 @@
 
 <% @time_span_to_display&.each do |currentDay|%>
   <%
-    if (currentDay.day == 1) then
-      klass = ' firstDayOfMonth'
-    elsif (currentDay.day == currentDay.end_of_month.day) then
-      klass = ' lastDayOfMonth'
-    else
-      klass = ''
-    end
+    klass = ''
+    klass += ' firstDayOfMonth' if currentDay.day == 1
+    klass += ' lastDayOfMonth' if currentDay.day == currentDay.end_of_month.day
+    klass += ' weekend' if currentDay.cwday == 6 || currentDay.cwday == 7
+    klass += ' lastDayOfWeek' if currentDay.cwday == 7
   %>
   <th class="day-of-month<%= klass %>" scope="col">
     <%= tag.small currentDay.day.to_s %>

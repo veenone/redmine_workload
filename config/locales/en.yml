@@ -165,3 +165,6 @@ en:
   button_collapse_all: "Collapse All"
   button_show_all_members: "Show Member Summary"
   button_hide_all_members: "Hide Member Summary"
+  label_workload_menu_settings: "Menu Settings"
+  label_disable_global_workload_menu: "Disable global workload menu"
+  info_disable_global_workload_menu: "When enabled, the Workload menu will only appear in the project menu, restricting workload scope to project level only."

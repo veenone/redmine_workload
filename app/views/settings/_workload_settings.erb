@@ -143,3 +143,20 @@
 		<em class='info icon icon-warning'><%= l(:warning_include_parent_tasks) %></em>
 	</p>
 </fieldset>
+
+<fieldset class='box'>
+	<legend><%= l(:label_workload_menu_settings) %></legend>
+	<p>
+	  <label><%= l(:label_disable_global_workload_menu) %></label>
+	  <input type="hidden"
+	         name="settings[disable_global_workload_menu]"
+	         value=""
+	  >
+	  <input type="checkbox"
+	         name="settings[disable_global_workload_menu]"
+	         value="checked"
+	         <%= "checked" if settings['disable_global_workload_menu'] != '' %>
+	  >
+		<em class='info'><%= l(:info_disable_global_workload_menu) %></em>
+	</p>
+</fieldset>

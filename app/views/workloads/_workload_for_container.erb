@@ -55,8 +55,12 @@
       <%
         total = container_totals[day]
         total_string = (total.abs < 0.01) ? '' : sprintf("%.1f", total)
+        cell_class = 'container-total-cell'
+        cell_class += ' has-hours' if total > 0
+        cell_class += ' firstDayOfMonth' if day.day == 1
+        cell_class += ' lastDayOfWeek' if day.cwday == 7
       %>
-      <td class="container-total-cell <%= 'has-hours' if total > 0 %>">
+      <td class="<%= cell_class %>">
         <span class="container-total-hours"><%= total_string %></span>
       </td>
     <% end %>
@@ -96,6 +100,8 @@
             cell_class += ' estimated'     if !dataForDay[:noEstimate]
             cell_class += ' today'         if  @today === day
             cell_class += ' ' + load_class_for_hours(hours, lowload, normalload, highload)
+            cell_class += ' firstDayOfMonth' if day.day == 1
+            cell_class += ' lastDayOfWeek' if day.cwday == 7
 
             hoursString = (hours.abs < 0.01) ? '' : sprintf("%.1f", hours)
         %>

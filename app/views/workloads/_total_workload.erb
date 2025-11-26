@@ -21,6 +21,7 @@
      klass += ' ' + load_class_for_hours(hours, lowload, normalload, highload)
      klass += ' has-allocation' if has_allocation
      klass += ' firstDayOfMonth' if day.day == 1
+     klass += ' lastDayOfWeek' if day.cwday == 7
   %>
   <td class="<%= klass %>" <%= "title=\"Includes #{sprintf('%.1f', allocation_hours)}h manual allocation\"".html_safe if has_allocation %>>
       <span>
